@@ -23,11 +23,6 @@ public class UserController {
 
     //의존성 주입
     private final UserService userService;
-//
-//    public UserController(UserService userService) {
-//        this.userService = userService;
-//    }
-
 
     @GetMapping("/user/login-page")
     public String loginPage() {
