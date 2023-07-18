@@ -1,7 +1,7 @@
 package com.sparta.sns.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.sparta.sns.dto.SignupRequestDto;
+import com.sparta.sns.dto.*;
 import com.sparta.sns.jwt.JwtUtil;
 import com.sparta.sns.service.KakaoService;
 import com.sparta.sns.service.UserService;
@@ -10,13 +10,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -33,6 +32,12 @@ public class UserController {
     private final UserService userService;
     private final KakaoService kakaoService;
 
+    //예외처리 메서드
+    //컨트롤러 내 API가 호출되다가 Exception 발생 시, 코드 실행
+    @ExceptionHandler
+    public ResponseEntity<ApiResponseDto> handleException(IllegalArgumentException ex){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponseDto(ex.getMessage()));
+    }
     @GetMapping("/user/login-page")
     public String loginPage() {
         return "login";
@@ -43,26 +48,36 @@ public class UserController {
         return "signup";
     }
 
-    @GetMapping("/main")
-    public String mainPage(){return "main";}
-
     @PostMapping("/user/signup")
-    public String signup(@Valid SignupRequestDto requestDto, BindingResult bindingResult) {
-        System.out.println(requestDto.getEmail());
-        // Validation 예외처리
+    @ResponseBody
+    public ResponseEntity<ApiResponseDto> signup(@Valid @RequestBody SignupRequestDto requestDto, BindingResult bindingResult) {
+//        //validation 예외처리
         List<FieldError> fieldErrors = bindingResult.getFieldErrors();
-        if(fieldErrors.size() > 0) {
+        StringBuilder errorMessage = new StringBuilder();
+
+        //validation 예외가 1건 이상인 경우
+        if (fieldErrors.size() > 0) {
             for (FieldError fieldError : bindingResult.getFieldErrors()) {
                 log.error(fieldError.getField() + " 필드 : " + fieldError.getDefaultMessage());
+                errorMessage.append(fieldError.getDefaultMessage()).append(" ");
             }
-            return "redirect:/api/user/signup";
+            throw new IllegalArgumentException(errorMessage.toString());
         }
-
-        userService.signup(requestDto);
-
-        return "redirect:/api/user/login-page";
+        return ResponseEntity.status(HttpStatus.OK).body(userService.signup(requestDto));
     }
 
+    //입력한 이메일정보를 받아 인증번호를 발급
+    @PostMapping("/user/signup/authentication")
+    @ResponseBody
+    public ResponseEntity<ApiResponseDto> authentication(@RequestBody AuthenticationRequestDto requestDto){
+        return ResponseEntity.status(200).body(userService.authentication(requestDto));
+    }
+    // 입력한 이메일과 인증번호를 받아 DB 내 인증번호와 대조 및 만료여부 검증
+    @PostMapping("/user/signup/verification")
+    @ResponseBody
+    public ResponseEntity<ApiResponseDto> verification(@RequestBody VerificationRequestDto requestDto){
+            return ResponseEntity.status(200).body(userService.verification(requestDto));
+    }
     @GetMapping("/user/kakao/callback")
     public String kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException, UnsupportedEncodingException {
         //로그인 작업이 끝난 Jwt토큰을 받음
@@ -77,4 +92,6 @@ public class UserController {
 
         return "redirect:/";
     }
+
+
 }
