@@ -37,6 +37,10 @@ public class Post extends TimeStamped {
         this.user = user;
     }
 
+    public void report(){
+        this.repoort_flag = true;
+    }
+
     public void update(PostRequestDto requestDto) {
         this.content =  requestDto.getContent();
     }
