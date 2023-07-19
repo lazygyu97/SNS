@@ -42,7 +42,6 @@ public class PostService {
         for (Post post : postList) {
             postResponseDto.add(new PostResponseDto(post));
         }
-
         return postResponseDto;
     }
 
