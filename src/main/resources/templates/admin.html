@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>관리자 페이지</title>
+    <!-- 그래프를 보여주기 위한 CDN  -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        window.onload = function () {
+            // 그래프 데이터와 설정
+            var data_1 = {
+                labels: ['7.17', '7.18', '7.19', '7.20', '7.21'], datasets: [{
+                    label: '신규 가입자 수',
+                    data: [10, 20, 5, 15, 124],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            };
+
+            // 그래프 데이터와 설정
+            var data_2 = {
+                labels: ['7.17', '7.18', '7.19', '7.20', '7.21'], datasets: [{
+                    label: '신규 게시글 수',
+                    data: [1, 12, 23, 5, 4],
+                    backgroundColor: 'rgba(45,222,73,0.2)',
+                    borderColor: 'rgb(167,215,156)',
+                    borderWidth: 1
+                }]
+            };
+
+            var options = {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            };
+            // 그래프 생성
+            var ctx_1 = document.getElementById('postChart').getContext('2d');
+            var ctx_2 = document.getElementById('userChart').getContext('2d');
+
+            var postChart = new Chart(ctx_1, {
+                type: 'bar', data: data_1, options: options
+            });
+            var userChart = new Chart(ctx_2, {
+                type: 'bar', data: data_2, options: options
+            });
+        }
+
+    </script>
+
+    <style>
+        /* 그래프를 좌우로 배치 */
+        .graph-container {
+            width: 45%; /* 요소 크기를 조절하여 좌우 여백을 늘립니다. */
+            margin: 10px; /* 좌우 여백 추가 */
+            display: inline-block; /* 요소를 가로로 나란히 배치합니다. */
+        }
+
+        /* 전체 요소를 가운데 정렬 */
+        body {
+            margin: 0 auto;
+            max-width: 900px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* Clear the float to prevent other elements from floating around the graphs */
+        .clear {
+            clear: both;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    CHECKSHIRTS
+    관리자 페이지
+</div>
+
+<div class="graph-container">
+    신규 유저 그래프
+    <canvas id="userChart"></canvas>
+</div>
+
+<div class="graph-container">
+    신규 게시글 그래프
+    <canvas id="postChart"></canvas>
+</div>
+
+
+<div class="clear"></div>
+
+<div style="background: antiquewhite; margin: 20px;">
+    신고된 글 리스트
+</div>
+
+<div>
+    <button>전체 사용자 관리</button>
+    <button>전체 게시글 관리</button>
+</div>
+</body>
+</html>
