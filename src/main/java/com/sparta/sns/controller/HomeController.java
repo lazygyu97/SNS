@@ -1,26 +1,37 @@
 package com.sparta.sns.controller;
 
-// public class HomeController {
-
-// //     private PostService postService;
-
-// //     // 메인 페이지
-// //     @GetMapping("/")
-// //     public String home(@AuthenticationPrincipal UserDetailsImpl userDetails, Model model){
-// //     List<PostResponseDto> posts = postService.getAllPosts();
-// //     model.addAttribute("postlist",posts); // service에서 리턴한 값을 담아서 html로 보내줌
-
-// //         return "posts";
-// //     }
-// }
-
+import com.sparta.sns.entity.UserRoleEnum;
+import com.sparta.sns.security.UserDetailsImpl;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
+@RequiredArgsConstructor
 public class HomeController {
+
     @GetMapping("/")
-    public String home() {
+    public String goHome(@AuthenticationPrincipal UserDetailsImpl userDetails, Model model) {
+
+        UserRoleEnum role = userDetails.getUser().getRole();
+
+        if (role == UserRoleEnum.ADMIN) {
+            return "admin";
+        }
+        if (role == UserRoleEnum.DENY) {
+
+
+
+            return "deny";
+        }
         return "main";
     }
+
+    @GetMapping("/deny")
+    public String deny() {
+        return "deny";
+    }
+
 }

@@ -61,7 +61,7 @@ public class UserController {
                 log.error(fieldError.getField() + " 필드 : " + fieldError.getDefaultMessage());
                 errorMessage.append(fieldError.getDefaultMessage()).append(" ");
             }
-            throw new IllegalArgumentException(errorMessage.toString());
+            return "redirect:/api/user/signup";
         }
         return ResponseEntity.status(HttpStatus.OK).body(userService.signup(requestDto));
     }
