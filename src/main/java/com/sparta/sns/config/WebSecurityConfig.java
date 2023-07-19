@@ -74,6 +74,7 @@ public class WebSecurityConfig {
                 formLogin
                         .loginPage("/api/user/login-page").permitAll()
                         .loginProcessingUrl("/api/user/login").permitAll()
+                        .defaultSuccessUrl("/")//로그인 성공 시 이동될 경로
         );
 
 

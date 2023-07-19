@@ -32,7 +32,7 @@ public class UserDetailsImpl implements UserDetails {
     }
 
     public String getNickname(){
-        return user.getNickName();
+        return user.getNickname();
     }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

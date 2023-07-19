@@ -1,6 +1,5 @@
 package com.sparta.sns.controller;
 
-
 import com.sparta.sns.entity.UserRoleEnum;
 import com.sparta.sns.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +33,5 @@ public class HomeController {
     public String deny() {
         return "deny";
     }
-
 
 }
