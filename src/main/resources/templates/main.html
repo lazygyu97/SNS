@@ -5,6 +5,9 @@
     <title>Title</title>
 </head>
 <body>
-
+<li th:each="list : ${postlist}">
+    <span th:text="${list.getContent()}"></span>
+    <span th:text="${list.getUsername()}"></span>
+</li>
 </body>
 </html>

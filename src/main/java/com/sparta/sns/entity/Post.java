@@ -4,9 +4,6 @@ import com.sparta.sns.dto.PostRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 

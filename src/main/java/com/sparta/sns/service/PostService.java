@@ -65,6 +65,11 @@ public class PostService {
         return "삭제 완료";
     }
 
+    // 게시글 신고
+    public String reportPost(Long id, User user) {
+        return "게시글 신고 완료";
+    }
+
     // 게시글 수정, 삭제 시 유저 권한 확인
     private Post confirmUser(Long id, User user){
         // 글 가져오기

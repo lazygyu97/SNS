@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        // POST 요청 처리
+        $('#post-btn').on('click', function(event) {
+            event.preventDefault(); // 기본 동작 중단
+
+            const inputData = $('#input-post').val(); // 입력 데이터 가져오기
+
+            $.ajax({
+                type: 'POST',
+                url: '/api/create-post',
+                data: JSON.stringify({ data: inputData }),
+                contentType: 'application/json',
+                success: function(response) {
+                    console.log('POST 요청 성공:', response);
+                    // 여기에서 POST 요청에 대한 응답 처리
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error('POST 요청 실패:', errorThrown);
+                    // 여기에서 POST 요청 실패 처리
+                }
+            });
+
+            alert(data['게시글 작성 완료!']);
+            $('#input-post').val(''); // 작성 완료 시 내용 비우기
+
+        });
+
+        $(document).ready(function () {
+            const auth = getToken();
+
+
+        })
+        // 쿠키에서 인증 토큰 가져오기
+        function getToken() {
+            let auth = Cookies.get('Authorization');
+
+            if (auth === undefined) {
+                return '';
+            }
+            return auth;
+        }
+    </script>
+</head>
+<body>
+    <!-- 게시글 input -->
+<div id="post-input">
+    <div class="form-floating mb-3" id="name-box">
+        <p id="input-nickname">로그인 한 사용자 닉네임</p>
+    </div>
+
+    <div class="form-floating mb-3" id="post-input-box">
+        <input type="text" class="form-control" placeholder="당신의 일상을 공유하세요!" id="input-post" />
+    </div>
+
+    <div class="mypost" id="post-button-box">
+        <button class="btn btn-outline-secondary btn-lg"
+                style = "font-size: 26px;" type="button" id="post-btn">✔</button>
+    </div>
+
+</div>
+    <!-- 게시글 output -->
+    <div class="show-comments" id="post-output">
+        <div class="card">
+            <div class="card-body">
+                <p id="out-nickname">닉네임 출력</p>
+                <p id="out-content"> 댓글 출력</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
