@@ -6,8 +6,7 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" type="text/css" href="/css/style.css">
-    <title>PLUG::회원가입</title>
-
+    <title>CHECK SHIRTS 회원가입</title>
     <style>
         body {
             display: flex;
@@ -118,15 +117,148 @@
 
             if (password.value !== confirmPassword.value) {
                 error.style.display = "block";
+                error.textContent = "비밀번호가 일치하지 않습니다."
                 success.style.display = "none";
                 confirmPassword.style.borderColor = "red";
                 submitButton.disabled = true; // 비밀번호가 일치하지 않을 경우, 회원 가입 버튼 클릭 비활성화
             } else {
-                error.style.display = "none";
-                success.style.display = "block";
-                confirmPassword.style.borderColor = "green";
-                submitButton.disabled = false; // 비밀번호가 일치할 경우, 회원 가입 버튼 활성화
+                let regex = new RegExp('^(?=.*[A-Za-z])(?=.*\\d)(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,16}$')
+                if (regex.test(password.value)) {
+                    error.style.display = "none";
+                    success.style.display = "block";
+                    success.textContent = "비밀번호가 일치합니다."
+                    confirmPassword.style.borderColor = "green";
+                    submitButton.disabled = false; // 비밀번호가 일치할 경우, 회원 가입 버튼 활성화
+                } else {
+                    error.style.display = "block";
+                    error.textContent = "비밀번호는 8~16자리수여야 합니다. 영문 대소문자, 숫자, 특수문자를 1개 이상 포함해야 합니다."
+                    success.style.display = "none";
+                    confirmPassword.style.borderColor = "red";
+                    submitButton.disabled = true; // 비밀번호가 일치하지 않을 경우, 회원 가입 버튼 클릭 비활성화
+                }
+
             }
+        }
+
+        function emailAuthentication() {
+            let email = document.getElementById("email");
+            let error = document.getElementById("email-error");
+            let success = document.getElementById("email-success");
+
+            //이메일 정규식
+            let regex = new RegExp('[a-z0-9]+@[a-z]+\.[a-z]{2,3}');
+            console.log("이메일 정규식 검증시작")
+            if (regex.test(email.value)) {
+                console.log("이메일 정규식 검증통과")
+                error.style.display = "none";
+                email.style.borderColor = "green";
+                success.textContent = "작성하신 이메일로 인증코드를 보내고 있습니다. 잠시만 기다려주세요..."
+                success.style.display = "block";
+                //request 생성
+                let requestDto = {
+                    "email": email.value
+                };
+
+                fetch("/api/user/signup/authentication", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(requestDto)
+                })
+                    .then(function (response) {
+                        console.log("서버 응답생성")
+                        if (response.ok) {
+                            error.style.display = "none";
+                        } else {
+                            error.style.display = "block";
+                            success.style.display = "none";
+                        }
+                        return response.json(); // response를 JSON으로 변환하여 다음 `.then()`으로 전달
+                    })
+                    .then(function (responseDto) {
+                        success.textContent = responseDto.msg;
+                        success.style.display = "block";
+                        error.style.display = "none";
+                    })
+                    .catch(function (error) {
+                        console.error("인증 메일 보내기 실패", error);
+                    });
+                // 서버로 작업 요청 보내기
+            } else {//이메일 형식이 아닌 경우
+                error.style.display = "block";
+                success.style.display = "none";
+                email.style.borderColor = "red";
+                error.textContent="유효한 이메일 형식이 아닙니다.";
+            }
+        }
+        function emailVerification() {
+
+            let email = document.getElementById("email");
+            let authKey = document.getElementById("email-authKey");
+            let requestDto = {
+                "email": email.value,
+                "authKey": authKey.value
+            };
+
+            fetch("/api/user/signup/verification", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(requestDto)
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (responseDto) {
+                    alert(responseDto.msg);
+                })
+                .catch(function (error) {
+                    console.error("인증 메일 보내기 실패", error);
+                });
+        }
+
+        function signup() {
+            console.log("회원가입 버튼 클릭")
+            let nickname = document.getElementById("nickname");
+            let username = document.getElementById("username");
+            let password = document.getElementById("password");
+            let email = document.getElementById("email");
+            let adminToken = document.getElementById("admin-token");
+
+            console.log("nickname:"+nickname.value)
+            console.log("username:"+username.value)
+            console.log("password:"+password.value)
+            console.log("email:"+email.value)
+            console.log("adminToken:"+adminToken.value)
+            //request 생성
+            let requestDto = {
+                "nickname": nickname.value,
+                "username": username.value,
+                "password": password.value,
+                "email": email.value,
+                "adminToken": adminToken.value
+            };
+            fetch("/api/user/signup", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(requestDto)
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (responseDto) {
+                    alert(responseDto.msg);
+                    if(responseDto.msg === "회원가입 완료"){
+                        window.location.href = "/";
+                    }
+                })
+                .catch(function (error) {
+                    console.error("회원가입 실패", error);
+                });
         }
     </script>
 </head>
@@ -136,24 +268,24 @@
         <img src="/images/Logo.png" class="logo-img">
     </div>
     <div id="login-title">회원가입</div>
-
-    <form action="/api/user/signup" method="post">
-        <input type="text" name="nickName" placeholder="닉네임(최소 2글자에서 최대 8글자로 설정 할 수 있습니다.)" class="login-input-box">
-        <input type="text" name="username" placeholder="사용자명(3~16자의 영문 대소문자, 숫자, 특수문자(_,-)만 사용할 수 있습니다.)"
-               class="login-input-box">
-        <input type="password" id="password" name="password"
-               placeholder="비밀번호(8~16자리 수 영문 대소문자, 숫자, 특수문자를 1개 이상 포함해야 합니다.)" class="login-input-box">
-        <input type="password" id="confirm-password" name="confirmPassword" placeholder="비밀번호 확인"
-               class="login-input-box">
-        <div id="password-error" class="error-message" style="display: none;">비밀번호가 일치하지 않습니다.</div>
-        <div id="password-success" class="success-message" style="display: none;">비밀번호가 일치합니다.</div>
-        <input type="text" name="email" placeholder="이메일(유효한 이메일 형식이 아닙니다.)" class="login-input-box">
-        <div>
-            <input id="admin-check" type="checkbox" name="admin" onclick="onclickAdmin()">관리자
-            <input id="admin-token" type="password" name="adminToken" placeholder="관리자 암호" class="login-input-box">
-        </div>
-        <button id="login-id-submit" onclick="validatePassword()">회원 가입</button>
-    </form>
+    <input type="text" id="nickname" name="nickname" placeholder="닉네임" class="login-input-box">
+    <input type="text" id="username" name="username" placeholder="아이디" class="login-input-box">
+    <input type="password" id="password" name="password" placeholder="비밀번호" class="login-input-box">
+    <input type="password" id="confirm-password" name="confirmPassword" placeholder="비밀번호 확인"
+           class="login-input-box" onchange="validatePassword()">
+    <div id="password-error" class="error-message" style="display: none;"></div>
+    <div id="password-success" class="success-message" style="display: none;"></div>
+    <input id="email" type="text" name="email" placeholder="이메일" class="login-input-box">
+    <button id="email-authentication" onclick="emailAuthentication()">이메일 인증</button>
+    <div id="email-error" class="error-message" style="display: none;"></div>
+    <div id="email-success" class="success-message" style="display: none;"></div> <!--동적으로 전달할 성공메시지-->
+    <input id="email-authKey" type="text" name="email" placeholder="이메일 인증번호를 입력해주세요." class="login-input-box">
+    <button id="email-validate" onclick="emailVerification()">인증 확인</button>
+    <div>
+        <input id="admin-check" type="checkbox" name="admin" onclick="onclickAdmin()">관리자
+        <input id="admin-token" type="password" name="adminToken" placeholder="관리자 암호" class="login-input-box">
+    </div>
+    <button id="signup-button" onclick="signup()">회원 가입</button>
 </div>
 </body>
 </html>

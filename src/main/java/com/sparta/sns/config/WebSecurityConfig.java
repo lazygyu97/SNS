@@ -65,6 +65,7 @@ public class WebSecurityConfig {
                 authorizeHttpRequests
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll() // resources 접근 허용 설정
                         .requestMatchers("/api/user/**").permitAll() // '/api/user/'로 시작하는 요청 모두 접근 허가
+                        .requestMatchers("/deny").permitAll() // '/api/user/'로 시작하는 요청 모두 접근 허가
                         .anyRequest().authenticated() // 그 외 모든 요청 인증처리 -->permitAll
 
         );
@@ -73,7 +74,9 @@ public class WebSecurityConfig {
                 formLogin
                         .loginPage("/api/user/login-page").permitAll()
                         .loginProcessingUrl("/api/user/login").permitAll()
+                        .defaultSuccessUrl("/")//로그인 성공 시 이동될 경로
         );
+
 
         // 필터 관리
         http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
