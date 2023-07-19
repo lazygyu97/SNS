@@ -6,6 +6,9 @@
     <div>로그인 성공 시 이동될 메인페이지 입니다.</div>
 </head>
 <body>
-
+<li th:each="list : ${postlist}">
+    <span th:text="${list.getContent()}"></span>
+    <span th:text="${list.getUsername()}"></span>
+</li>
 </body>
 </html>
