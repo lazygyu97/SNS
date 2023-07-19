@@ -28,25 +28,41 @@ public class User extends TimeStamped {
     private String email;
 
     //유저의 이름 또는 별명값
-    @Column(nullable = false, unique = true)
-    private String nickName;
+    @Column(nullable = false, unique = false)
+    private String nickname;
 
     //유저의 자기소개 값
     @Column
     private String userContent;
 
 
+    private Long kakaoId;
+
+
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
 
-    public User(String nickName,String username, String password, String email,UserRoleEnum role ) {
-        this.nickName=nickName;
+    public User(String nickname,String username, String password, String email,UserRoleEnum role ) {
+        this.nickname=nickname;
         this.username=username;
         this.password=password;
         this.email=email;
         this.role=role;
 
+    }
+    public User(String username, String password, String email, UserRoleEnum role, Long kakaoId) {
+        this.nickname = username;
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.role = role;
+        this.kakaoId =kakaoId;
+    }
+
+    public User kakaoIdUpdate(Long kakaoId) {
+        this.kakaoId = kakaoId;
+        return this;
     }
 
 }
