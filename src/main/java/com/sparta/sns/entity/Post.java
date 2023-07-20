@@ -21,7 +21,7 @@ public class Post extends TimeStamped {
 
     // 게시글 신고 여부 플래그
     @Column
-    private boolean repoort_flag = false;
+    private boolean report_flag = false;
 
     // 외래키로 user_id 받아오기
     @ManyToOne(fetch = FetchType.LAZY)
@@ -32,8 +32,8 @@ public class Post extends TimeStamped {
     @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true) // 삭제, 업데이트 시 반영됨
     private List<Comment> commentList = new ArrayList<>();
 
-    public Post(PostRequestDto requestDto, User user) {
-        this.content = requestDto.getContent();
+    public Post(String content, User user) {
+        this.content = content;
         this.user = user;
     }
 

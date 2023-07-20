@@ -5,29 +5,35 @@
     <title>관리자 페이지</title>
     <!-- 그래프를 보여주기 위한 CDN  -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
+    <!--  jquery  -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script th:inline="javascript">
         window.onload = function () {
+
+            var postCountList = [[${dailyPostCountList}]];
+            var userCountList = [[${dailyUserCountList}]];
             // 그래프 데이터와 설정
             var data_1 = {
-                labels: ['7.17', '7.18', '7.19', '7.20', '7.21'], datasets: [{
-                    label: '신규 가입자 수',
-                    data: [10, 20, 5, 15, 124],
+                labels: postCountList.map(item => item.date),
+                datasets: [{
+                    label: '신규 게시글 수',
+                    data: postCountList.map(item => item.postCount),
                     backgroundColor: 'rgba(75, 192, 192, 0.2)',
                     borderColor: 'rgba(75, 192, 192, 1)',
                     borderWidth: 1
                 }]
-            };
-
-            // 그래프 데이터와 설정
+            };            // 그래프 데이터와 설정
             var data_2 = {
-                labels: ['7.17', '7.18', '7.19', '7.20', '7.21'], datasets: [{
-                    label: '신규 게시글 수',
-                    data: [1, 12, 23, 5, 4],
-                    backgroundColor: 'rgba(45,222,73,0.2)',
-                    borderColor: 'rgb(167,215,156)',
+                labels: userCountList.map(item => item.date),
+                datasets: [{
+                    label: '신규 사용자 수',
+                    data: userCountList.map(item => item.postCount),
+                    backgroundColor: 'rgba(75,192,91,0.2)',
+                    borderColor: 'rgb(87,192,75)',
                     borderWidth: 1
                 }]
             };
+
 
             var options = {
                 scales: {
@@ -48,13 +54,61 @@
             });
         }
 
+        function viewUsers() {
+            $('#view-posts').hide();
+            $('#view-users').show();
+        }
+
+        function viewPosts() {
+            $('#view-posts').show();
+            $('#view-users').hide();
+        }
+
+
+        function filterUsers() {
+            var keyword = document.getElementById("user-keyword").value.toLowerCase();
+            var userListItems = document.querySelectorAll("#user-list-container li");
+
+            userListItems.forEach(function (item) {
+                var username = item.querySelector(".username").textContent.toLowerCase();
+                var role = item.querySelector(".role").textContent.toLowerCase();
+
+                if (username.includes(keyword) || role.includes(keyword)) {
+                    item.style.display = "block";
+                } else {
+                    item.style.display = "none";
+                }
+            });
+        }
+        function filterPosts() {
+            var keyword = document.getElementById("post-keyword").value.toLowerCase();
+            var postListItems = document.querySelectorAll("#post-list-container li");
+
+            postListItems.forEach(function (item) {
+                var username = item.querySelector(".username").textContent.toLowerCase();
+                var content = item.querySelector(".content").textContent.toLowerCase();
+
+                if (username.includes(keyword) || content.includes(keyword)) {
+                    item.style.display = "block";
+                } else {
+                    item.style.display = "none";
+                }
+            });
+        }
+
     </script>
 
     <style>
+        .header{
+            margin-top: 100px;
+            margin-bottom: 100px;
+        }
+
         /* 그래프를 좌우로 배치 */
         .graph-container {
+
+            margin-bottom: 30px;
             width: 45%; /* 요소 크기를 조절하여 좌우 여백을 늘립니다. */
-            margin: 10px; /* 좌우 여백 추가 */
             display: inline-block; /* 요소를 가로로 나란히 배치합니다. */
         }
 
@@ -70,13 +124,21 @@
         .clear {
             clear: both;
         }
+
+        /* 사용자 목록과 게시글 목록 스크롤 적용 */
+        .scrollable-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 5px;
+            margin: 10px 0;
+        }
     </style>
 </head>
 <body>
 
 <div class="header">
-    CHECKSHIRTS
-    관리자 페이지
+    <img class="logo" src="/images/logo.png">
 </div>
 
 <div class="graph-container">
@@ -97,8 +159,35 @@
 </div>
 
 <div>
-    <button>전체 사용자 관리</button>
-    <button>전체 게시글 관리</button>
+    <button onclick="viewUsers()">전체 사용자 관리</button>
+    <button onclick="viewPosts()">전체 게시글 관리</button>
 </div>
+
+<div id="view-users" style="display: none">
+    <input type="text" id="user-keyword" placeholder="username을 입력해주세요">
+    <button onclick="filterUsers()">검색</button>
+    <div class="scrollable-list">
+        <ul id="user-list-container">
+            <li th:each="list : ${userList}">
+                <span class="username" th:text="${list.getUsername()}"></span>
+                <span class="role" th:text="${list.getRole()}"></span>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div id="view-posts" style="display: none">
+    <input type="text" id="post-keyword" placeholder="키워드를 입력해주세요">
+    <button onclick="filterPosts()">검색</button>
+    <div class="scrollable-list">
+        <ul id="post-list-container">
+            <li th:each="list : ${postList}">
+                <span class="content" th:text="${list.getContent()}"></span>
+                <span class="username" th:text="${list.getUsername()}"></span>
+            </li>
+        </ul>
+    </div>
+</div>
+
 </body>
 </html>

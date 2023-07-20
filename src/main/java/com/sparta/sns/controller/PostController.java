@@ -5,32 +5,29 @@ import com.sparta.sns.dto.PostResponseDto;
 import com.sparta.sns.security.UserDetailsImpl;
 import com.sparta.sns.service.PostService;
 import io.jsonwebtoken.JwtException;
-import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.util.List;
 
 @Controller
 @RequestMapping("/api")
-@RequiredArgsConstructor
 public class PostController {
     private PostService postService;
 
-// posts.html 한 페이지 내에서 게시글 작성 / 댓글 작성 같은 거 다 해야 하는데 어떡..하지??????
-    @GetMapping("/postpage")
-    public String create(){
-        return "posts";
+    public PostController(PostService postService) {
+        this.postService = postService;
     }
 
+
     // 게시글 작성 - 로그인, 작성 내용 필요
-    @ResponseBody
     @PostMapping("/posts")
     public String createPost(@RequestBody PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails){
         // 토큰 검사
         checkToken(userDetails);
-        return postService.createPost(requestDto,userDetails.getUser());
+        postService.createPost(requestDto,userDetails.getUser());
+        return "redirect:/";
     }
 
     // 게시글 조회 (목록 전체)

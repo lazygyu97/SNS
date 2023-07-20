@@ -1,9 +1,6 @@
 package com.sparta.sns.service;
 
-import com.sparta.sns.dto.ApiResponseDto;
-import com.sparta.sns.dto.AuthenticationRequestDto;
-import com.sparta.sns.dto.SignupRequestDto;
-import com.sparta.sns.dto.VerificationRequestDto;
+import com.sparta.sns.dto.*;
 import com.sparta.sns.entity.SignupAuth;
 import com.sparta.sns.entity.User;
 import com.sparta.sns.entity.UserRoleEnum;
@@ -19,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.mail.javamail.JavaMailSender;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -55,7 +53,7 @@ public class UserService {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
         //이메일 인증 정보가 Table에 없거나, 상태코드가 1(OK)이 아닌경우
-        if(checkSignupAuth.isEmpty()||checkSignupAuth.get().getAuthStatus()!=1){
+        if (checkSignupAuth.isEmpty() || checkSignupAuth.get().getAuthStatus() != 1) {
             throw new IllegalArgumentException("이메일 인증이 수행되지 않았습니다. 이메일 인증을 완료해주세요.");
         }
         // 사용자 ROLE 확인
@@ -67,49 +65,9 @@ public class UserService {
             role = UserRoleEnum.ADMIN;
         }
         // 사용자 등록
-        User user = new User(nickname,username, password, email,role);
+        User user = new User(nickname, username, password, email, role);
         userRepository.save(user);
         return new ApiResponseDto("회원가입 완료");
-    }
-//    //회원가입 기능
-//    public void signup(SignupRequestDto requestDto) {
-//        String username = requestDto.getUsername();
-//        String password = passwordEncoder.encode(requestDto.getPassword());
-//        String nickname = requestDto.getNickname();
-//
-//        // 회원 중복 확인 --> Entity 에서도  @Column(nullable = false, unique = true) 이런식으로 고유값으로 선언해야한다
-////        Optional<User> checkUsername = userRepository.findByUsername(username);
-////        if (checkUsername.isPresent()) { //isPresent() --> 데이터에 동일 데이터가 있는지 확인.
-////            throw new IllegalArgumentException("중복된 사용자가 존재합니다.");
-////        }
-//        findUser(username);
-//
-//        // email 중복확인
-//        String email = requestDto.getEmail();
-//        Optional<User> checkEmail = userRepository.findByEmail(email);
-//        if (checkEmail.isPresent()) {
-//            throw new IllegalArgumentException("중복된 Email 입니다.");
-//        }
-//
-//        // 사용자 ROLE 확인
-//        UserRoleEnum role = UserRoleEnum.DENY;//user로 바꿔서 사용
-//        if (requestDto.isAdmin()) {
-//            if (!ADMIN_TOKEN.equals(requestDto.getAdminToken())) {
-//                throw new IllegalArgumentException("관리자 암호가 틀려 등록이 불가능합니다.");
-//            }
-//            role = UserRoleEnum.ADMIN;
-//        }
-//        // 사용자 등록
-//        User user = new User(nickname,username, password, email,role);
-//        userRepository.save(user);
-//    }
-
-    public boolean findUser(String username) {
-        Optional<User> checkUsername = userRepository.findByUsername(username);
-        if (checkUsername.isPresent()) { //isPresent() --> 데이터에 동일 데이터가 있는지 확인.
-            throw new IllegalArgumentException("중복된 사용자가 존재합니다.");
-        }
-        return true;
     }
 
 
@@ -177,8 +135,7 @@ public class UserService {
             targetSignupAuth.changeStatusOK(); // 인증번호 상태값 1로 변경
             signupAuthRepository.save(targetSignupAuth); //변경상태를 DB 저장
             return new ApiResponseDto("인증번호 확인이 완료되었습니다.");
-        }
-        else{//인증번호 대조 - 불일치
+        } else {//인증번호 대조 - 불일치
             targetSignupAuth.changeStatusNO(); // 인증번호 상태값 0으로 변경
             signupAuthRepository.save(targetSignupAuth); //변경상태를 DB 저장
             throw new IllegalArgumentException("인증번호가 일치하지 않습니다.");
@@ -201,4 +158,15 @@ public class UserService {
         }
         return str;
     }
+
+    //전체 유저 리스트 가져오기
+    public List<User> getAllUsers() {
+
+        if (userRepository.findAll().isEmpty()) {
+            throw new IllegalArgumentException("회원가입한 유저가 없습니다.");
+        }
+        return userRepository.findAll();
+    }
+
+
 }
