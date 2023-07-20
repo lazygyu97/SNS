@@ -26,6 +26,9 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SignupAuthRepository signupAuthRepository;
+    private final PasswordManagerRepository passwordManagerRepository;
+    private final JavaMailSender mailSender;
 
 
     // ADMIN_TOKEN
