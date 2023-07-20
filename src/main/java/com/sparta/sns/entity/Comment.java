@@ -1,5 +1,6 @@
 package com.sparta.sns.entity;
 
+import com.sparta.sns.dto.CommentRequestDto;
 import com.sparta.sns.dto.PostRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -28,7 +29,7 @@ public class Comment extends TimeStamped{
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public Comment(PostRequestDto requestDto,User user, Post post) {
+    public Comment(CommentRequestDto requestDto, User user, Post post) {
        this.content = requestDto.getContent();
        this.user = user;
        this.post = post;
