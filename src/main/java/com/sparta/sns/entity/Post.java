@@ -4,11 +4,14 @@ import com.sparta.sns.dto.PostRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @Table(name = "posts")
 public class Post extends TimeStamped {
@@ -28,6 +31,10 @@ public class Post extends TimeStamped {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    // 이미지 업로드 url
+    @Column
+    private String imageUrl;
+
     // 외래키로 댓글 받아오기
     @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true) // 삭제, 업데이트 시 반영됨
     private List<Comment> commentList = new ArrayList<>();
@@ -37,8 +44,14 @@ public class Post extends TimeStamped {
         this.user = user;
     }
 
+    public Post(PostRequestDto requestDto, User user) {
+        this.content = requestDto.getContent();
+        this.user = user;
+        this.imageUrl = requestDto.getImageUrl();
+    }
+
     public void report(){
-        this.repoort_flag = true;
+        this.report_flag = true;
     }
 
     public void update(PostRequestDto requestDto) {
