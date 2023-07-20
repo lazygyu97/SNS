@@ -1,19 +1,18 @@
 package com.sparta.sns.service;
 
+import com.sparta.sns.dto.ApiResponseDto;
 import com.sparta.sns.dto.PostRequestDto;
 import com.sparta.sns.dto.PostResponseDto;
 import com.sparta.sns.entity.Post;
 import com.sparta.sns.entity.User;
 import com.sparta.sns.entity.UserRoleEnum;
 import com.sparta.sns.repository.PostRepository;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -22,14 +21,21 @@ public class PostService {
     private PostRepository postRepository;
 
     // 게시글 작성
-    public String createPost(PostRequestDto requestDto, User user) {
+    public ApiResponseDto createPost(PostRequestDto requestDto, User user) {
+
+        String content = requestDto.getContent();
+
+        if (content.isEmpty()){
+            throw new IllegalArgumentException("글을 작성해주세요.");
+        }
+
         // Post 객체 만들기
-        Post post = new Post(requestDto,user);
+        Post post = new Post(content,user);
 
         // Post 객체 DB에 저장
         postRepository.save(post);
 
-        return "작성 완료";
+        return new ApiResponseDto("글 작성 완료");
     }
 
     // 게시글 전체 조회
@@ -42,11 +48,8 @@ public class PostService {
         for (Post post : postList) {
             postResponseDto.add(new PostResponseDto(post));
         }
-
         return postResponseDto;
     }
-
-    //
 
     // 게시글 수정
     @Transactional
@@ -66,7 +69,12 @@ public class PostService {
     }
 
     // 게시글 신고
-    public String reportPost(Long id, User user) {
+    @Transactional
+    public String reportPost(Long id) {
+        Post post = postRepository.findById(id).orElseThrow(() ->
+                new IllegalArgumentException("선택하신 글이 존재하지 않습니다."));
+        post.report();
+
         return "게시글 신고 완료";
     }
 

@@ -2,13 +2,162 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-    <div>로그인 성공 시 이동될 메인페이지 입니다.</div>
+    <title>Airygram::메인페이지</title>
+    <!--  jquery  -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- font-->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inconsolata&display=swap">
+    <!--  파비콘-->
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+
+    <style>
+
+        /* 전체 요소를 가운데 정렬 */
+        body {
+            font-family: 'Inconsolata', monospace;
+            margin: 0 auto;
+            max-width: 850px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* header 스타일 */
+        .header {
+            margin-top: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+        }
+
+        /* 로고 이미지 스타일 */
+        .logo {
+            width: 400px;
+            height: auto;
+        }
+
+        /* 플러스 버튼 스타일 */
+        .plus-button {
+            width: 70px;
+            height: 70px;
+            cursor: pointer;
+        }
+
+        /* 인사말 스타일 */
+        .greeting {
+            color: #4e81c9;
+            margin-left: auto;
+        }
+
+        /* 글 리스트 스타일 */
+        .post-list {
+            align-items: center;
+            max-height: 800px;
+            overflow: scroll;
+            margin-top: 60px;
+            align-items: center;
+        }
+
+        .post-item {
+            font-size: 30px;
+            color: white;
+            border-radius: 20px;
+            background-color: #70a2e5;
+            padding: 20px;
+            margin-bottom: 30px;
+            width: 94%;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+
+        /* 글쓰기 창 스타일 */
+        .post-form {
+            border-radius: 20px;
+            width: 98%;
+            height: 100px;
+            display: none;
+            margin-top: 100px;
+            background-color: #70a2e5;
+
+        }
+
+        .post-input-box {
+            width: 60%;
+            margin-top: 25px;
+            height: 50px;
+            border: none;
+            background-color: #ffffff;
+            border-radius: 10px;
+        }
+
+        .post-form button {
+            width: 150px; /* Adjust the width as per your preference */
+            height: 50px;
+            margin: 25px 0;
+            border: none;
+            border-radius: 10px;
+            background-color: #70a2e5;
+            color: white;
+            font-size: 25px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-<li th:each="list : ${postlist}">
-    <span th:text="${list.getContent()}"></span>
-    <span th:text="${list.getUsername()}"></span>
-</li>
+<div class="header">
+    <img class="logo" src="/images/logo.png">
+    <img class="plus-button" src="/images/plus.png" onclick="showForm()">
+    <div class="greeting">
+        <span th:text="${nickname}"></span>님 안녕하세요
+    </div>
+
+</div>
+
+
+<div id="post-form" class="post-form" style="display: none">
+    <input type="text" name="content" id="content" placeholder="글 작성" class="post-input-box">
+    <button onclick="submitForm()">post</button>
+</div>
+
+<div class="post-list">
+    <div th:each="list, status : ${list}" class="post-item">
+        <span th:text="${list.getUsername()}"></span>
+        <span th:text="${list.getContent()}"></span>
+    </div>
+</div>
+
+
+<script>
+    function submitForm() {
+        let content = document.getElementById("content").value;
+
+        alert(content);
+        fetch("/api/posts", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                "content": content
+            }),
+        })
+            .then((response) => {
+                if (response.ok) {
+                    window.location.href = "/"; // 메인 페이지로 리다이렉션
+                } else {
+                    throw new Error("글 작성에 실패했습니다.");
+                }
+            })
+            .catch((error) => console.log(error));
+    }
+
+    function showForm() {
+        $('#post-form').show();
+    }
+
+</script>
 </body>
 </html>

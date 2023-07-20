@@ -6,21 +6,23 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" type="text/css" href="/css/style.css">
-    <title>CHECK SHIRTS 회원가입</title>
+    <!-- font-->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inconsolata&display=swap">
+    <title>Airygram::회원가입 페이지</title>
     <style>
         body {
+            font-family: 'Inconsolata', monospace;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             background-color: #f5f5f5;
-            font-family: Arial, sans-serif;
         }
 
         #login-form {
             background-color: #fff;
             padding: 20px;
-            border-radius: 5px;
+            border-radius: 20px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             text-align: center;
             width: 600px; /* 사이즈를 조정할 수 있습니다 */
@@ -48,13 +50,14 @@
         }
 
         .login-input-box {
-            width: 100%;
+            width: 60%;
             padding: 10px;
             margin-bottom: 10px;
             border: 1px solid #ccc;
             border-radius: 3px;
             font-size: 16px;
             box-sizing: border-box;
+            text-align: center;
         }
 
         #admin-check {
@@ -90,7 +93,7 @@
         }
 
         .success-message {
-            color: #2f2f2f;
+            color: green;
             font-size: 14px;
             margin-top: 5px;
             text-align: left;
@@ -108,16 +111,134 @@
             }
         }
 
-        function validatePassword() {
-            var password = document.getElementById("password");
-            var confirmPassword = document.getElementById("confirm-password");
-            var error = document.getElementById("password-error");
-            var success = document.getElementById("password-success");
-            var submitButton = document.getElementById("login-id-submit");
+        function nicknameConfirm() {
+            let nickname = document.getElementById("nickname");
+            let error = document.getElementById("nickname-error");
+            let success = document.getElementById("nickname-success");
+
+            let regex = new RegExp('^(?=.*[a-z0-9가-힣])[a-z0-9가-힣]{2,16}$');
+            if (regex.test(nickname.value)) {
+                error.style.display = "none";
+                success.style.display = "block";
+                success.textContent = "사용가능한 이름입니다."
+                nickname.style.borderColor = "green";
+            } else {
+                error.style.display = "block";
+                error.textContent = "이름(별명)은 2~16자의 영어, 숫자, 한글로 사용할 수 있습니다."
+                success.style.display = "none";
+                nickname.style.borderColor = "red";
+            }
+        }
+
+        let usernameCheckStatus = 0;
+        function usernameConfirm() {
+            console.log("아이디 변경 발생")
+            usernameCheckStatus=0;
+            let username = document.getElementById("username");
+            let error = document.getElementById("username-error");
+            let success = document.getElementById("username-success");
+
+            let regex = new RegExp('^[a-zA-Z0-9_-]{3,16}$');
+            if (regex.test(username.value)) {
+                error.style.display = "block";
+                error.textContent = "아이디 중복확인을 먼저 수행해주세요."
+                success.style.display = "none";
+                username.style.borderColor = "red";
+
+            } else {
+                error.style.display = "block";
+                error.textContent = "아이디는 3~16자의 영문, 숫자, 특수문자(_,-)만 사용할 수 있습니다."
+                success.style.display = "none";
+                username.style.borderColor = "red";
+            }
+        }
+        function findUsername(){
+            let username = document.getElementById("username");
+            let error = document.getElementById("username-error");
+            let success = document.getElementById("username-success");
+
+            //username 정규식
+            let regex = new RegExp('^[a-zA-Z0-9_-]{3,16}$');
+            if (regex.test(username.value)) {
+
+                //request 생성
+                let requestDto = {
+                    "username": username.value
+                };
+
+                fetch("/api/user/signup/username", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(requestDto)
+                })
+                    .then(function (response) {
+                        console.log("서버 응답생성")
+                        if (response.ok) {
+                            usernameCheckStatus=1;
+                            error.style.display = "none";
+                            success.style.color = "green";
+                            username.style.borderColor = "green";
+
+                        } else {
+                            usernameCheckStatus=0;
+                            error.style.display = "block";
+                            success.style.display = "none";
+                            success.style.color = "red";
+                            username.style.borderColor = "red";
+                        }
+                        return response.json(); // response를 JSON으로 변환하여 다음 `.then()`으로 전달
+                    })
+                    .then(function (responseDto) {
+                        success.textContent = responseDto.msg;
+                        success.style.display = "block";
+                        error.style.display = "none";
+                    })
+                    .catch(function (error) {
+                        console.error("아이디 중복 확인 실패", error);
+                    });
+                // 서버로 작업 요청 보내기
+            } else {//아이디 정규식 통과못할 시
+                error.style.display = "block";
+                success.style.display = "none";
+                username.style.borderColor = "red";
+                error.textContent = "아이디는 3~16자의 영문, 숫자, 특수문자(_,-)만 사용할 수 있습니다.";
+            }
+        }
+
+        //현재 비밀번호와 다른 비밀번호를 입력했는지,
+        //정규식에 맞는 비밀번호를 입력했는지 확인하는 함수
+        function password1Confirm() {
+            let password = document.getElementById("password");
+            let error = document.getElementById("password-error");
+            let success = document.getElementById("password-success");
+
+            let regex = new RegExp('^(?=.*[A-Za-z])(?=.*\\d)(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,16}$')
+            if (regex.test(password.value)) {
+                error.style.display = "none";
+                success.style.display = "block";
+                success.textContent = "사용가능한 비밀번호입니다."
+                password.style.borderColor = "green";
+
+            } else {
+                error.style.display = "block";
+                error.textContent = "비밀번호는 8~16자리수여야 합니다. 영문, 숫자, 특수문자를 1개 이상 포함해야 합니다."
+                success.style.display = "none";
+                password.style.borderColor = "red";
+            }
+        }
+
+        function password2Confirm() {
+            let password = document.getElementById("password");
+            let confirmPassword = document.getElementById("confirm-password");
+            let error = document.getElementById("password-error2");
+            let success = document.getElementById("password-success2");
+            let submitButton = document.getElementById("login-id-submit");
 
             if (password.value !== confirmPassword.value) {
                 error.style.display = "block";
-                error.textContent = "비밀번호가 일치하지 않습니다."
+                error.textContent = "입력한 비밀번호가 일치하지 않습니다."
                 success.style.display = "none";
                 confirmPassword.style.borderColor = "red";
                 submitButton.disabled = true; // 비밀번호가 일치하지 않을 경우, 회원 가입 버튼 클릭 비활성화
@@ -126,12 +247,12 @@
                 if (regex.test(password.value)) {
                     error.style.display = "none";
                     success.style.display = "block";
-                    success.textContent = "비밀번호가 일치합니다."
+                    success.textContent = "입력한 비밀번호가 일치합니다."
                     confirmPassword.style.borderColor = "green";
                     submitButton.disabled = false; // 비밀번호가 일치할 경우, 회원 가입 버튼 활성화
                 } else {
                     error.style.display = "block";
-                    error.textContent = "비밀번호는 8~16자리수여야 합니다. 영문 대소문자, 숫자, 특수문자를 1개 이상 포함해야 합니다."
+                    error.textContent = "비밀번호는 8~16자리수여야 합니다. 영문  숫자, 특수문자를 1개 이상 포함해야 합니다."
                     success.style.display = "none";
                     confirmPassword.style.borderColor = "red";
                     submitButton.disabled = true; // 비밀번호가 일치하지 않을 경우, 회원 가입 버튼 클릭 비활성화
@@ -140,6 +261,7 @@
             }
         }
 
+        //이메일 인증 요청
         function emailAuthentication() {
             let email = document.getElementById("email");
             let error = document.getElementById("email-error");
@@ -154,6 +276,7 @@
                 email.style.borderColor = "green";
                 success.textContent = "작성하신 이메일로 인증코드를 보내고 있습니다. 잠시만 기다려주세요..."
                 success.style.display = "block";
+                success.style.color="black";
                 //request 생성
                 let requestDto = {
                     "email": email.value
@@ -189,7 +312,7 @@
                 error.style.display = "block";
                 success.style.display = "none";
                 email.style.borderColor = "red";
-                error.textContent="유효한 이메일 형식이 아닙니다.";
+                error.textContent = "유효한 이메일 형식이 아닙니다.";
             }
         }
         function emailVerification() {
@@ -221,17 +344,16 @@
 
         function signup() {
             console.log("회원가입 버튼 클릭")
+            if(usernameCheckStatus===0){
+                alert("아이디 중복 확인을 먼저 수행해주세요.");
+                return;
+            }
             let nickname = document.getElementById("nickname");
             let username = document.getElementById("username");
             let password = document.getElementById("password");
             let email = document.getElementById("email");
             let adminToken = document.getElementById("admin-token");
 
-            console.log("nickname:"+nickname.value)
-            console.log("username:"+username.value)
-            console.log("password:"+password.value)
-            console.log("email:"+email.value)
-            console.log("adminToken:"+adminToken.value)
             //request 생성
             let requestDto = {
                 "nickname": nickname.value,
@@ -251,8 +373,8 @@
                     return response.json();
                 })
                 .then(function (responseDto) {
-                    alert(responseDto.msg);
-                    if(responseDto.msg === "회원가입 완료"){
+                    alert(responseDto.msg); // 서버 측 메시지가 클라이언트에 전달
+                    if (responseDto.msg === "회원가입 완료") {
                         window.location.href = "/";
                     }
                 })
@@ -268,24 +390,34 @@
         <img src="/images/Logo.png" class="logo-img">
     </div>
     <div id="login-title">회원가입</div>
-    <input type="text" id="nickname" name="nickname" placeholder="닉네임" class="login-input-box">
-    <input type="text" id="username" name="username" placeholder="아이디" class="login-input-box">
-    <input type="password" id="password" name="password" placeholder="비밀번호" class="login-input-box">
-    <input type="password" id="confirm-password" name="confirmPassword" placeholder="비밀번호 확인"
-           class="login-input-box" onchange="validatePassword()">
+    <input type="text" id="nickname" name="nickname" placeholder="닉네임" class="login-input-box"
+           onchange="nicknameConfirm()">
+    <div id="nickname-error" class="error-message" style="display: none;"></div>
+    <div id="nickname-success" class="success-message" style="display: none;"></div>
+    <input type="text" id="username" name="username" placeholder="아이디" class="login-input-box"
+           onchange="usernameConfirm()">
+    <button id="findUsernameButton" onclick="findUsername()">아이디 중복확인</button>
+    <div id="username-error" class="error-message" style="display: none;"></div>
+    <div id="username-success" class="success-message" style="display: none;"></div>
+    <input type="password" id="password" name="password" placeholder="비밀번호" class="login-input-box"
+           onchange="password1Confirm()">
     <div id="password-error" class="error-message" style="display: none;"></div>
     <div id="password-success" class="success-message" style="display: none;"></div>
+    <input type="password" id="confirm-password" name="confirmPassword" placeholder="비밀번호 확인"
+           class="login-input-box" onchange="password2Confirm()">
+    <div id="password-error2" class="error-message" style="display: none;"></div>
+    <div id="password-success2" class="success-message" style="display: none;"></div>
     <input id="email" type="text" name="email" placeholder="이메일" class="login-input-box">
     <button id="email-authentication" onclick="emailAuthentication()">이메일 인증</button>
     <div id="email-error" class="error-message" style="display: none;"></div>
     <div id="email-success" class="success-message" style="display: none;"></div> <!--동적으로 전달할 성공메시지-->
-    <input id="email-authKey" type="text" name="email" placeholder="이메일 인증번호를 입력해주세요." class="login-input-box">
-    <button id="email-validate" onclick="emailVerification()">인증 확인</button>
+    <input id="email-authKey" type="text" name="email" placeholder="이메일 인증번호를 입력해주세요." class="login-input-box"><br>
+    <button id="email-validate" onclick="emailVerification()"style="height:30px;background-color: #77a3de;border-radius:20px;font-size:15px;width: 60%; border :0px;margin-bottom: 10px;">인증 확인</button>
     <div>
         <input id="admin-check" type="checkbox" name="admin" onclick="onclickAdmin()">관리자
         <input id="admin-token" type="password" name="adminToken" placeholder="관리자 암호" class="login-input-box">
     </div>
-    <button id="signup-button" onclick="signup()">회원 가입</button>
+    <button id="signup-button" onclick="signup()"style="height:30px;background-color: #77a3de;border-radius:20px;font-size:15px;width: 60%; border :0px;margin-bottom: 10px;margin-top: 20px">회원 가입</button>
 </div>
 </body>
 </html>
