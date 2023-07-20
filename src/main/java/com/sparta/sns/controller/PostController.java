@@ -56,6 +56,13 @@ public class PostController {
     }
 
     // 게시글 신고
+    @ResponseBody
+    @DeleteMapping("/posts/report/{postid}")
+    public String reportPost(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        // 토큰 검사
+        checkToken(userDetails);
+        return postService.reportPost(id);
+    }
 
 
     // 로그인 토큰 검증
