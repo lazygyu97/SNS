@@ -1,10 +1,11 @@
 package com.sparta.sns.dto;
 
 import com.sparta.sns.entity.Post;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-
+@Getter
 public class PostResponseDto {
 
     private String content;

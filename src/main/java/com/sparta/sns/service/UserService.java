@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -90,7 +91,6 @@ public class UserService {
         return true;
     }
 
-
     //회원가입을 위한 이메일 인증 메서드
     //1. 이미 회원가입된 이메일이 있는지 확인
     //2. 이전에 인증번호요청이력이 있는지 확인. 있으면 삭제
@@ -155,8 +155,7 @@ public class UserService {
             targetSignupAuth.changeStatusOK(); // 인증번호 상태값 1로 변경
             signupAuthRepository.save(targetSignupAuth); //변경상태를 DB 저장
             return new ApiResponseDto("인증번호 확인이 완료되었습니다.");
-        }
-        else{//인증번호 대조 - 불일치
+        } else {//인증번호 대조 - 불일치
             targetSignupAuth.changeStatusNO(); // 인증번호 상태값 0으로 변경
             signupAuthRepository.save(targetSignupAuth); //변경상태를 DB 저장
             throw new IllegalArgumentException("인증번호가 일치하지 않습니다.");
@@ -179,4 +178,15 @@ public class UserService {
         }
         return str;
     }
+
+    //전체 유저 리스트 가져오기
+    public List<User> getAllUsers() {
+
+        if (userRepository.findAll().isEmpty()) {
+            throw new IllegalArgumentException("회원가입한 유저가 없습니다.");
+        }
+        return userRepository.findAll();
+    }
+
+
 }
