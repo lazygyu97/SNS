@@ -61,21 +61,28 @@ public class UserController {
                 log.error(fieldError.getField() + " 필드 : " + fieldError.getDefaultMessage());
                 errorMessage.append(fieldError.getDefaultMessage()).append(" ");
             }
-            throw new IllegalArgumentException(errorMessage.toString());        }
+            throw new IllegalArgumentException(errorMessage.toString());
+        }
         return ResponseEntity.status(HttpStatus.OK).body(userService.signup(requestDto));
+    }
+    //입력한 이메일정보를 받아 인증번호를 발급
+    @PostMapping("/user/signup/username")
+    @ResponseBody
+    public ResponseEntity<ApiResponseDto> checkUsername(@RequestBody UsernameRequestDto requestDto){
+        return ResponseEntity.ok().body(userService.checkUsername(requestDto));
     }
 
     //입력한 이메일정보를 받아 인증번호를 발급
     @PostMapping("/user/signup/authentication")
     @ResponseBody
     public ResponseEntity<ApiResponseDto> authentication(@RequestBody AuthenticationRequestDto requestDto){
-        return ResponseEntity.status(200).body(userService.authentication(requestDto));
+        return ResponseEntity.ok().body(userService.authentication(requestDto));
     }
     // 입력한 이메일과 인증번호를 받아 DB 내 인증번호와 대조 및 만료여부 검증
     @PostMapping("/user/signup/verification")
     @ResponseBody
     public ResponseEntity<ApiResponseDto> verification(@RequestBody VerificationRequestDto requestDto){
-            return ResponseEntity.status(200).body(userService.verification(requestDto));
+            return ResponseEntity.ok().body(userService.verification(requestDto));
     }
     @GetMapping("/user/kakao/callback")
     public String kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException, UnsupportedEncodingException {

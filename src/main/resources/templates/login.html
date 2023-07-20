@@ -117,30 +117,30 @@
     $(document).ready(function () {
         // 토큰 삭제
         Cookies.remove('Authorization', {path: '/'});
-        });
-        const host = 'http://' + window.location.host;
-            const href = location.href;
-        const queryString = href.substring(href.indexOf("?") + 1)
-        if (queryString === 'error') {
-            const errorDiv = document.getElementById('login-failed');
-            errorDiv.style.display = 'block';
-        }
-        function onLogin() {
-            let username = $('#username').val();
-            let password = $('#password').val();
-            $.ajax({
-                type: "POST",
+    });
+    const host = 'http://' + window.location.host;
+    const href = location.href;
+    const queryString = href.substring(href.indexOf("?") + 1)
+    if (queryString === 'error') {
+        const errorDiv = document.getElementById('login-failed');
+        errorDiv.style.display = 'block';
+    }
+    function onLogin() {
+        let username = $('#username').val();
+        let password = $('#password').val();
+        $.ajax({
+            type: "POST",
             url: `/api/user/login`,
-                contentType: "application/json",
+            contentType: "application/json",
             data: JSON.stringify({username: username, password: password}),
         })
-        .done(function (res, status, xhr) {
+            .done(function (res, status, xhr) {
                 window.location.href = host;
             })
-                .fail(function (xhr, textStatus, errorThrown) {
-                    console.log('statusCode: ' + xhr.status);
-                    window.location.href = host + '/api/user/login-page?error'
-                });
-        }
+            .fail(function (xhr, textStatus, errorThrown) {
+                console.log('statusCode: ' + xhr.status);
+                window.location.href = host + '/api/user/login-page?error'
+            });
+    }
 </script>
 </html>

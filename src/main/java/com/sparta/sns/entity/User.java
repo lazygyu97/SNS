@@ -1,12 +1,10 @@
 package com.sparta.sns.entity;
 
+import com.sparta.sns.dto.ProfileRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -36,7 +34,8 @@ public class User extends TimeStamped {
 
     //유저의 자기소개 값
     @Column
-    private String userContent;
+    private String oneLine;
+
 
     private Long kakaoId;
 
@@ -67,4 +66,13 @@ public class User extends TimeStamped {
         return this;
     }
 
+    public void modifyProfile(ProfileRequestDto requestDto) {
+        this.nickname = requestDto.getNickname();
+        this.email = requestDto.getEmail();
+        this.oneLine = requestDto.getOneLine();
+    }
+
+    public void modifyPassword(String newPassword) {
+        this.password = newPassword;
+    }
 }

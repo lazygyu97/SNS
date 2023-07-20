@@ -11,7 +11,7 @@ import lombok.Setter;
 public class SignupRequestDto {
 
     @NotBlank(message = "이름 또는 별명을 입력해주세요.")
-    @Size(min=2,max=8,message = "이름(별명)은 최소 2글자에서 최대 8글자로 설정 할 수 있습니다.")
+    @Pattern(regexp ="^(?=.*[a-z0-9가-힣])[a-z0-9가-힣]{2,16}$", message = "이름(별명)은 2~16자의 영어, 숫자, 한글로 사용할 수 있습니다.")
     private String nickname;
 
     @NotBlank(message = "아이디를 입력해주세요.") //정규식 -> chat gpt
