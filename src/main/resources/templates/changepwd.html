@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CHECK SHIRTS - 비밀번호 변경</title>
+</head>
+<style>
+    .error-message {
+        color: red;
+        font-size: 14px;
+        margin-top: 5px;
+        text-align: left;
+    }
+
+    .success-message {
+        color: green;
+        font-size: 14px;
+        margin-top: 5px;
+        text-align: left;
+    }
+</style>
+<script>
+
+    //현재 비밀번호
+    // 새 비밀번호
+    // 새 비밀번호 확인
+
+    //현재 비밀번호와 다른 비밀번호를 입력했는지,
+    //정규식에 맞는 비밀번호를 입력했는지 확인하는 함수
+    function newPassword1Confirm() {
+        let currentPassword = document.getElementById("currentPassword");
+        let newPassword = document.getElementById("newPassword");
+        let error = document.getElementById("password-error");
+        let success = document.getElementById("password-success");
+        let okButton = document.getElementById("okbutton");
+
+        let regex = new RegExp('^(?=.*[A-Za-z])(?=.*\\d)(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,16}$')
+        if (regex.test(newPassword.value)) {
+            if (currentPassword.value === newPassword.value) {
+                error.style.display = "block";
+                error.textContent = "현재 비밀번호와 다른 비밀번호를 입력해주세요."
+                success.style.display = "none";
+                newPassword.style.borderColor = "red";
+            } else {
+                error.style.display = "none";
+                success.style.display = "block";
+                success.textContent = "사용가능한 비밀번호입니다."
+                newPassword.style.borderColor = "green";
+
+            }
+        } else {
+            error.style.display = "block";
+            error.textContent = "비밀번호는 8~16자리수여야 합니다. 영문, 숫자, 특수문자를 1개 이상 포함해야 합니다."
+            success.style.display = "none";
+            newPassword.style.borderColor = "red";
+        }
+    }
+
+
+    //새 비밀번호와 새 비밀번호 확인 입력내용이 동일한지 확인
+
+    function newPassword2Confirm() {
+        let newPassword = document.getElementById("newPassword");
+        let newPassword2 = document.getElementById("newPassword2");
+        let error = document.getElementById("password2-error");
+        let success = document.getElementById("password2-success");
+
+        if (newPassword.value !== newPassword2.value) {
+            error.style.display = "block";
+            error.textContent = "입력한 비밀번호가 일치하지 않습니다."
+            success.style.display = "none";
+            newPassword2.style.borderColor = "red";
+        } else {
+            let regex = new RegExp('^(?=.*[A-Za-z])(?=.*\\d)(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,16}$')
+            if (regex.test(newPassword2.value)) {
+                error.style.display = "none";
+                success.style.display = "block";
+                success.textContent = "입력한 비밀번호가 일치합니다."
+                newPassword2.style.borderColor = "green";
+            } else {
+                error.style.display = "block";
+                error.textContent = "비밀번호는 8~16자리수여야 합니다. 영문 대소문자, 숫자, 특수문자를 1개 이상 포함해야 합니다."
+                success.style.display = "none";
+                newPassword2.style.borderColor = "red";
+            }
+        }
+    }
+
+    function okButton() {
+        let currentPassword = document.getElementById("currentPassword");
+        let newPassword = document.getElementById("newPassword");
+        let newPassword2 = document.getElementById("newPassword2");
+
+        if (currentPassword.value === "") {
+            alert("현재 비밀번호가 입력되지 않았습니다.");
+        } else if (newPassword.value === "") {
+            alert("새 비밀번호가 입력되지 않았습니다.");
+        } else if (newPassword2.value === "") {
+            alert("새 비밀번호 확인값이 입력되지 않았습니다.");
+        } else if (newPassword.value !== newPassword2.value) {
+            alert("입력한 새 비밀번호가 서로 일치하지 않습니다.");
+        } else {
+            //request 생성
+            let requestDto = {
+                "currentPassword": currentPassword.value,
+                "newPassword": newPassword.value
+            };
+            fetch("/api/myprofile/password", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(requestDto)
+            })
+                .then(function (response) {
+                    console.log("서버 응답생성")
+                    return response.json(); // response를 JSON으로 변환하여 다음 `.then()`으로 전달
+                })
+                .then(function (responseDto) {
+                    alert(responseDto.msg)
+                    console.log(responseDto)
+                })
+                .catch(function (error) {
+                    console.error("비밀번호 변경요청 실패", error);
+                });
+        }
+    }
+
+</script>
+<body>
+<h1>비밀번호 변경</h1>
+<dl class="userInfo">
+    <dt class="currentPw"><label>현재 비밀번호</label></dt>
+    <dd class="currentPw"><input type="password" id="currentPassword" class="inputTxt">
+    </dd>
+
+    <dt class="pw"><label>새 비밀번호</label></dt>
+    <dd class="pw">
+        <input type="password" id="newPassword" onchange="newPassword1Confirm()"></input>
+        <span name="message">영문/숫자/특수문자를 조합하여 8~16자로 입력해주세요.</span>
+        <div id="password-error" class="error-message" style="display: none;"></div>
+        <div id="password-success" class="success-message" style="display: none;"></div> <!--동적으로 전달할 성공메시지-->
+    </dd>
+
+    <dt class="pw2"><label>새 비밀번호 확인</label></dt>
+    <dd class="pw2">
+        <input type="password" id="newPassword2" class="inputTxt" onchange="newPassword2Confirm()">
+        <span name="message2">비밀번호를 다시 한번 입력해주세요.</span>
+        <div id="password2-error" class="error-message" style="display: none;"></div>
+        <div id="password2-success" class="success-message" style="display: none;"></div> <!--동적으로 전달할 성공메시지-->
+    </dd>
+</dl>
+<button id="okbutton" onclick="okButton()">확인</button>
+</body>
+</html>

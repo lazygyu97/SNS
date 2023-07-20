@@ -71,4 +71,8 @@ public class User extends TimeStamped {
         this.email = requestDto.getEmail();
         this.oneLine = requestDto.getOneLine();
     }
+
+    public void modifyPassword(String newPassword) {
+        this.password = newPassword;
+    }
 }

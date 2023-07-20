@@ -1,22 +1,20 @@
 package com.sparta.sns.service;
 
-import com.sparta.sns.dto.ApiResponseDto;
-import com.sparta.sns.dto.AuthenticationRequestDto;
-import com.sparta.sns.dto.SignupRequestDto;
-import com.sparta.sns.dto.VerificationRequestDto;
+import com.sparta.sns.dto.*;
+import com.sparta.sns.entity.PasswordManager;
 import com.sparta.sns.entity.SignupAuth;
 import com.sparta.sns.entity.User;
 import com.sparta.sns.entity.UserRoleEnum;
+import com.sparta.sns.repository.PasswordManagerRepository;
 import com.sparta.sns.repository.SignupAuthRepository;
 import com.sparta.sns.repository.UserRepository;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.mail.javamail.JavaMailSender;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -30,6 +28,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final SignupAuthRepository signupAuthRepository;
     private final JavaMailSender mailSender;
+    private final PasswordManagerRepository passwordManagerRepository;
 
     // ADMIN_TOKEN
     private final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
@@ -41,13 +40,13 @@ public class UserService {
         String nickname = requestDto.getNickname();
         String email = requestDto.getEmail();
         // 아이디 중복 확인
-        Optional<User> checkUserId = userRepository.findByUsername(username);
+        Optional<User> checkUsername = userRepository.findByUsername(username);
         // email 중복확인
         Optional<User> checkEmail = userRepository.findByEmail(email);
         // 회원가입 이메일 인증번호 검증여부 확인
         Optional<SignupAuth> checkSignupAuth = signupAuthRepository.findByEmail(email);
 
-        if (checkUserId.isPresent()) {
+        if (checkUsername.isPresent()) {
             throw new IllegalArgumentException("이미 존재하는 ID입니다.");
         }
 
@@ -55,7 +54,7 @@ public class UserService {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
         //이메일 인증 정보가 Table에 없거나, 상태코드가 1(OK)이 아닌경우
-        if(checkSignupAuth.isEmpty()||checkSignupAuth.get().getAuthStatus()!=1){
+        if (checkSignupAuth.isEmpty() || checkSignupAuth.get().getAuthStatus() != 1) {
             throw new IllegalArgumentException("이메일 인증이 수행되지 않았습니다. 이메일 인증을 완료해주세요.");
         }
         // 사용자 ROLE 확인
@@ -67,9 +66,19 @@ public class UserService {
             role = UserRoleEnum.ADMIN;
         }
         // 사용자 등록
-        User user = new User(nickname,username, password, email,role);
+        User user = new User(nickname, username, password, email, role);
         userRepository.save(user);
+        // 비밀번호 관리 테이블에 등록
+        PasswordManager passwordManager = new PasswordManager(password, user);
+        passwordManagerRepository.save(passwordManager);
         return new ApiResponseDto("회원가입 완료");
+    }
+
+    //회원가입 시 아이디 중복확인
+    public ApiResponseDto checkUsername(UsernameRequestDto requestDto) {
+        findUser(requestDto.getUsername()); // 동일 아이디가 있을 시, 중복된 사용자가 존재한다는 Exception 반환
+
+        return new ApiResponseDto("사용 가능한 아이디입니다.");
     }
 
     public boolean findUser(String username) {
