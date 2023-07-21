@@ -92,6 +92,24 @@ public class PostService {
         return "게시글 신고 완료";
     }
 
+    //username을 통한 게시글 찾아오기
+    public List<PostResponseDto> getPostByUsername(Long id){
+        if(postRepository.findByUserIdOrderByCreatedAtDesc(id).isEmpty()){
+            throw new IllegalArgumentException("작성한 글이 없습니다.");
+        }
+
+
+        List<PostResponseDto> postResponseDto = new ArrayList<>();
+
+        // 게시글 목록 List에 담기
+        for (Post post :  postRepository.findByUserIdOrderByCreatedAtDesc(id)) {
+            postResponseDto.add(new PostResponseDto(post));
+        }
+        return postResponseDto;
+
+    }
+
+
     // 게시글 수정, 삭제 시 유저 권한 확인
     private Post confirmUser(Long id, User user){
         // 글 가져오기
@@ -108,4 +126,6 @@ public class PostService {
             return post;
         }
     }
+
+
 }

@@ -1,5 +1,6 @@
 package com.sparta.sns.controller;
 
+import com.sparta.sns.dto.CommentResponseDto;
 import com.sparta.sns.dto.DailyPostCountDto;
 import com.sparta.sns.dto.PostResponseDto;
 import com.sparta.sns.dto.UserGraphResponseDto;
@@ -36,7 +37,8 @@ public class HomeController {
         List<PostResponseDto> postList = postService.getAllPosts();
         List<User> userList = userService.getAllUsers();
 
-        String nickname = userDetails.getUsername();
+
+        String nickname = userDetails.getNickname();
 
         if (role == UserRoleEnum.ADMIN) {
 
@@ -61,7 +63,7 @@ public class HomeController {
         }
 
 
-        model.addAttribute("list",postList);
+        model.addAttribute("postList",postList);
         model.addAttribute("nickname",nickname);
         return "main";
     }
