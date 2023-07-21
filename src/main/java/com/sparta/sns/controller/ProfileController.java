@@ -38,11 +38,12 @@ public class ProfileController {
     @GetMapping("/mypage")
     public String myPage(@AuthenticationPrincipal UserDetailsImpl userDetails, Model model) {
 
+        String username=userDetails.getUsername();
         String nickname=userDetails.getNickname();
         String email=userDetails.getUser().getEmail();
         String oneLine=userDetails.getUser().getOneLine();
         List<PostResponseDto> postList= postService.getPostByUsername(userDetails.getUser().getId());
-
+        model.addAttribute("username",username);
         model.addAttribute("postList",postList);
         model.addAttribute("nickname",nickname);
         model.addAttribute("email",email);
@@ -50,6 +51,26 @@ public class ProfileController {
         return "mypage";
     }
 
+    @GetMapping("/userprofile/{username}")
+    public String userPage(Model model, @PathVariable String username,@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        ProfileResponseDto profileResponseDto = profileService.userProfile(username);
+
+        //본인 페이지로 이동시도할 시, myProfile로 이동
+        if(username.equals(userDetails.getUsername())){
+            String nickname=userDetails.getNickname();
+            String email=userDetails.getUser().getEmail();
+            String oneLine=userDetails.getUser().getOneLine();
+            List<PostResponseDto> postList= postService.getPostByUsername(userDetails.getUser().getId());
+
+            model.addAttribute("postList",postList);
+            model.addAttribute("nickname",nickname);
+            model.addAttribute("email",email);
+            model.addAttribute("oneLine",oneLine);
+            return "mypage";
+        }
+        model.addAttribute("profile",profileResponseDto);
+        return "userpage";
+    }
 
     @PutMapping("/myprofile")
     public ResponseEntity<ApiResponseDto> modifyProfile(@AuthenticationPrincipal UserDetailsImpl userDetails, @Valid @RequestBody ProfileRequestDto requestDto, BindingResult bindingResult) {
