@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+    <title>CHECK SHIRTS - My page</title>
+    <style>
+        .profile-field {
+            padding: 5px;
+            width: 300px;
+        }
+
+        .profile-field.editable {
+            border: 1px solid gray;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+    <script>
+
+        //thymeleaf 이용 view에 addAttribute로 해결.
+
+        //화면 접근 시 프로필 정보 불러오기
+        // window.onload = function () {
+        //     let url = window.location.href;
+        //     let username = url.split("/").pop();
+        //
+        //     fetch(`/api/userprofile/${username}`)
+        //         .then(function (response) {
+        //             if (response.ok) {
+        //                 return response.json();
+        //             } else {
+        //                 throw new Error("프로필 불러오기 실패");
+        //             }
+        //         })
+        //         .then(function (responseDto) {
+        //             let nickname = document.getElementById("nickname");
+        //             let username = document.getElementById("username");
+        //             let email = document.getElementById("email");
+        //             let oneLine = document.getElementById("oneLine");
+        //             nickname.textContent = responseDto.nickname;
+        //             email.textContent = responseDto.email;
+        //             username.textContent = responseDto.username;
+        //             if (responseDto.oneLine === null) {
+        //                 oneLine.textContent = "나의 한줄 소개를 입력해주세요."
+        //             } else {
+        //                 oneLine.textContent = responseDto.oneLine;
+        //             }
+        //             console.log(responseDto);
+        //         })
+        //
+        // }
+
+        function startFollow() {
+            let username = document.getElementById("username").textContent;
+            console.log(username);
+            fetch(`/api/follow/${username}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (responseDto) {
+                    alert(responseDto.msg);
+                })
+                .catch(function (error) {
+                    console.error("팔로우하기 실패", error);
+                });
+        }
+
+        function unFollow() {
+            let username = document.getElementById("username").textContent;
+            fetch(`/api/follow/${username}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({})
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (responseDto) {
+                    alert(responseDto.msg);
+                })
+                .catch(function (error) {
+                    console.error("팔로우취소하기 실패", error);
+                });
+        }
+
+        function showFollowers() {
+            let username = document.getElementById("username").textContent;
+            console.log(username);
+            fetch(`/api/followers/${username}`)
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (responseDto) {
+                    $('#follower-list').empty();
+                    responseDto.forEach(function (follower) {
+                        let username = follower.username;
+                        let email = follower.email;
+                        let nickname = follower.nickname;
+                        let followingDateTime = follower.followingDateTime;
+                        let temp_html = `
+                                <a href="${username}" role="link"
+                                   tabindex="0"
+                                   style="height: 44px; width: 44px;"><img
+                                        alt="${username}님의 프로필 사진"
+                                        src="https://scontent-ssn1-1.cdninstagram.com/v/t51.2885-19/342230601_670501178168655_2562967830462618991_n.jpg?stp=dst-jpg_s150x150&amp;_nc_ht=scontent-ssn1-1.cdninstagram.com&amp;_nc_cat=103&amp;_nc_ohc=YaP78wU9pccAX_tPuAv&amp;edm=APQMUHMBAAAA&amp;ccb=7-5&amp;oh=00_AfDcHlGkCxrRhcxGI7a0O1Z0AhiuXxcCVAX1REL9r80N8A&amp;oe=64BF00A0&amp;_nc_sid=6ff7c8"></a>
+                                <a href="${username}" role="link"><span>${username}</span></a>
+                                <div>${nickname}</div>
+                                <div>${email}</div>
+                                <div>팔로우한 날짜 :<span>${followingDateTime}</span></div>
+                        `
+                        $('#follower-list').append(temp_html);
+                    });
+                });
+        }
+
+        function showFollowings() {
+            let username = document.getElementById("username").textContent;
+            fetch(`/api/followings/${username}`)
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (responseDto) {
+                    $('#following-list').empty();
+                    responseDto.forEach(function (follower) {
+                        let username = follower.username;
+                        let email = follower.email;
+                        let nickname = follower.nickname;
+                        let followingDateTime = follower.followingDateTime;
+                        let temp_html = `
+                                <a href="${username}" role="link"
+                                   tabindex="0"
+                                   style="height: 44px; width: 44px;"><img
+                                        alt="${username}님의 프로필 사진"
+                                        src="https://scontent-ssn1-1.cdninstagram.com/v/t51.2885-19/342230601_670501178168655_2562967830462618991_n.jpg?stp=dst-jpg_s150x150&amp;_nc_ht=scontent-ssn1-1.cdninstagram.com&amp;_nc_cat=103&amp;_nc_ohc=YaP78wU9pccAX_tPuAv&amp;edm=APQMUHMBAAAA&amp;ccb=7-5&amp;oh=00_AfDcHlGkCxrRhcxGI7a0O1Z0AhiuXxcCVAX1REL9r80N8A&amp;oe=64BF00A0&amp;_nc_sid=6ff7c8"></a>
+                                <a href="${username}" role="link"><span>${username}</span></a>
+                                <div>${nickname}</div>
+                                <div>${email}</div>
+                                <div>팔로우한 날짜 :<span>${followingDateTime}</span></div>
+                        `
+                        $('#following-list').append(temp_html);
+                    });
+                });
+        }
+
+    </script>
+</head>
+<body>
+<div id="mypage-form">
+    <div id="mypage-title">CHECK SHIRTS - 유저페이지</div>
+    <div><span id="username" name="username" th:text="${profile.username}"></span></div>
+    <div><span id="nickname" name="nickname" contenteditable="false" class="profile-field"
+               th:text="${profile.nickname}"></span></div>
+    <div><span id="email" name="email" contenteditable="false" class="profile-field" th:text="${profile.email}"></span>
+    </div>
+    <div id="oneLine" name="oneLine" contenteditable="false" class="profile-field"><span
+            th:text="${profile.oneLine}"></span></div>
+    <button id="followers" name="followers" onclick="showFollowers()">팔로워</button>
+    <button id="followings" name="followings" onclick="showFollowings()">팔로잉</button>
+    <button id="followButton" name="follow" onclick="startFollow()">팔로우하기</button>
+    <button id="unfollowButton" name="unfollow" onclick="unFollow()">팔로우취소</button>
+    <div id="message" name="message">DM</div>
+    <h1 dir="auto" tabindex="-1" style="width: calc(100% - 100px);">
+        <a onclick="showFollowers()">팔로워</a>
+    </h1>
+    <div id="follower-list">
+    </div>
+    <h1 dir="auto" tabindex="-1" style="width: calc(100% - 100px);">
+        <a onclick="showFollowings()">팔로잉</a>
+    </h1>
+    <div id="following-list">
+    </div>
+</div>
+</body>
+</html>

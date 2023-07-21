@@ -1,10 +1,8 @@
 package com.sparta.sns.controller;
 
-import com.sparta.sns.dto.ApiResponseDto;
-import com.sparta.sns.dto.ModifyPasswordRequestDto;
-import com.sparta.sns.dto.ProfileRequestDto;
-import com.sparta.sns.dto.ProfileResponseDto;
+import com.sparta.sns.dto.*;
 import com.sparta.sns.security.UserDetailsImpl;
+import com.sparta.sns.service.PostService;
 import com.sparta.sns.service.ProfileService;
 import com.sparta.sns.service.UserService;
 import jakarta.validation.Valid;
@@ -30,6 +28,7 @@ public class ProfileController {
 
     private final UserService userService;
     private final ProfileService profileService;
+    private final PostService postService;
 
     @ExceptionHandler
     public ResponseEntity<ApiResponseDto> handleException(IllegalArgumentException ex) {
@@ -37,14 +36,20 @@ public class ProfileController {
     }
 
     @GetMapping("/mypage")
-    public String myPage() {
+    public String myPage(@AuthenticationPrincipal UserDetailsImpl userDetails, Model model) {
+
+        String nickname=userDetails.getNickname();
+        String email=userDetails.getUser().getEmail();
+        String oneLine=userDetails.getUser().getOneLine();
+        List<PostResponseDto> postList= postService.getPostByUsername(userDetails.getUser().getId());
+
+        model.addAttribute("postList",postList);
+        model.addAttribute("nickname",nickname);
+        model.addAttribute("email",email);
+        model.addAttribute("oneLine",oneLine);
         return "mypage";
     }
 
-    @GetMapping("/myprofile")
-    public ResponseEntity<ProfileResponseDto> myProfile(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return ResponseEntity.ok().body(profileService.userProfile(userDetails.getUser().getUsername()));
-    }
     @GetMapping("/userprofile/{username}")
     public String userPage(Model model, @PathVariable String username,@AuthenticationPrincipal UserDetailsImpl userDetails) {
         ProfileResponseDto profileResponseDto = profileService.userProfile(username);

@@ -38,7 +38,6 @@ public class PostController {
     }
 
     // 게시글 조회 (팔로잉 목록) > 팔로잉 구현 이후 구현!/ 게시글 수정
-    @ResponseBody
     @PutMapping("/posts/{postid}")
     public String updatePost(@PathVariable Long id, @RequestBody PostRequestDto requestDto,  @AuthenticationPrincipal UserDetailsImpl userDetails){
         // 토큰 검사
@@ -47,7 +46,6 @@ public class PostController {
     }
 
     // 게시글 삭제
-    @ResponseBody
     @DeleteMapping("/posts/{postid}")
     public String deletePost(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
         // 토큰 검사
@@ -56,7 +54,6 @@ public class PostController {
     }
 
     // 게시글 신고
-    @ResponseBody
     @DeleteMapping("/posts/report/{postid}")
     public String reportPost(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
         // 토큰 검사

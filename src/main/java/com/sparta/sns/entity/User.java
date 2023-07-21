@@ -29,7 +29,7 @@ public class User extends TimeStamped {
     private String email;
 
     //유저의 이름 또는 별명값
-    @Column(nullable = false, unique = false)
+    @Column(nullable = false)
     private String nickname;
 
     //유저의 자기소개 값

@@ -51,5 +51,4 @@ public class FollowController {
         return ResponseEntity.ok().body(followService.unFollowing(username, userDetails.getUser()));
     }
 
-
 }
