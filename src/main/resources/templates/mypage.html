@@ -231,6 +231,8 @@
             let saveButton = document.getElementById("saveButton");
             let modifyButton = document.getElementById("modifyButton");
             let cancelButton = document.getElementById("cancelButton");
+            let imagefile = document.getElementById("imagefile");
+
             for (let i = 0; i < profileFields.length; i++) {
                 profileFields[i].contentEditable = "true";
                 profileFields[i].classList.add("editable");
@@ -238,32 +240,39 @@
             saveButton.style.display = "block";
             modifyButton.style.display = "none";
             cancelButton.style.display = "block";
-
-
+            imagefile.style.display = "block";
         }
 
-
         function saveProfile() {
-
             let nickname = document.getElementById("nickname");
             let email = document.getElementById("email");
             let oneLine = document.getElementById("oneLine");
+            let image = document.getElementById('imagefile').files[0]; // 입력 사진 1장 가져오기
+
             let regex = new RegExp('[a-z0-9]+@[a-z]+\.[a-z]{2,3}');
             console.log("이메일 정규식 검증시작")
             if (regex.test(email.textContent)) {
                 console.log("nickname:" + nickname.textContent);
                 console.log("email:" + email.textContent);
                 console.log("oneLine:" + oneLine.textContent);
+
                 //request 생성
                 let requestDto = {
                     "nickname": nickname.textContent,
                     "email": email.textContent,
                     "oneLine": oneLine.textContent
                 };
+
+                // form-data 생성 (file 전송을 위해)
+                let formData = new FormData();
+                formData.append("file",image);
+                formData.append("requestDto", JSON.stringify(requestDto));
+
                 fetch("/api/myprofile", {
                     method: "PUT",
-                    headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify(requestDto)
+                    body : formData,
+                    // headers: {"Content-Type": "application/json"},
+                    // body: JSON.stringify(requestDto)
                 })
                     .then(function (response) {
                         return response.json();
@@ -275,6 +284,7 @@
                             let saveButton = document.getElementById("saveButton");
                             let modifyButton = document.getElementById("modifyButton");
                             let cancelButton = document.getElementById("cancelButton");
+                            let imagefile = document.getElementById("imagefile");
                             for (let i = 0; i < profileFields.length; i++) {
                                 profileFields[i].contentEditable = "false";
                                 profileFields[i].classList.remove("editable");
@@ -282,6 +292,7 @@
                             saveButton.style.display = "none";
                             cancelButton.style.display = "none";
                             modifyButton.style.display = "block";
+                            imagefile.style.display = "none";
                         }
                     })
                     .catch(function (error) {
@@ -382,6 +393,7 @@
             let saveButton = document.getElementById("saveButton");
             let modifyButton = document.getElementById("modifyButton");
             let cancelButton = document.getElementById("cancelButton");
+            let imagefile = document.getElementById("imagefile");
             for (let i = 0; i < profileFields.length; i++) {
                 profileFields[i].contentEditable = "false";
                 profileFields[i].classList.remove("editable");
@@ -389,20 +401,19 @@
             saveButton.style.display = "none";
             cancelButton.style.display = "none";
             modifyButton.style.display = "block";
+            imagefile.style.display = "none";
         }
 
         function showForm() {
             $('#post-form').show();
             $('#hideForm').show();
             $('#showForm').hide();
-
         }
 
         function hideForm() {
             $('#post-form').hide();
             $('#hideForm').hide();
             $('#showForm').show();
-
         }
 
         function submitForm() {
@@ -474,6 +485,7 @@
         <div id="oneLine" name="oneLine" contenteditable="false" class="profile-field" th:text="${oneLine}"></div>
         <button id="modifyButton" onclick="modifyProfile()" style="margin-top:20px;display:block;">프로필 수정</button>
         <button id="changePassword" onclick="changePassword()" style="display:inline;">비밀번호 수정</button>
+        <input type="file" id = "imagefile" accept="image/*" style="display:none;"/>        <!-- 프로필 수정 파일 업로드 버튼 -->
         <button id="saveButton" onclick="saveProfile()" style="display: none;">프로필 저장</button>
         <button id="cancelButton" onclick="cancelButton()" style="display: none;">취소</button>
         <div style="margin-top: 20px; display: flex;justify-content: center">
@@ -532,7 +544,6 @@
                 </div>
             </div>
         </div>
-
 
         <form th:action="@{/api/comments}" method="post" class="comment-form">
             <input type="hidden" name="postId" th:value="${postList.getId()}">
