@@ -1,5 +1,6 @@
 package com.sparta.sns.controller;
 
+import com.sparta.sns.dto.CommentRequestDto;
 import com.sparta.sns.dto.PostRequestDto;
 import com.sparta.sns.security.UserDetailsImpl;
 import com.sparta.sns.service.Commentservice;
@@ -10,31 +11,31 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j // log 기능 가져오는 어노테이션
-//@Controller // --> String
 @Controller
-@RequiredArgsConstructor
 @RequestMapping("/api")
 public class CommentController {
 
     private Commentservice commentservice;
 
+    public CommentController(Commentservice commentservice) {
+        this.commentservice = commentservice;
+    }
+
     // 프론트 구현 안 해서 paramater 값으로 우선 post id 받아서 구현!
     // 댓글 작성
-    @ResponseBody
-    @PostMapping("/comments/{postId}")
-    public String createComment(@PathVariable Long postId, @RequestBody PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails){
-        return commentservice.createComment(postId, requestDto,userDetails.getUser());
+    @PostMapping("/comments")
+    public String createComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @ModelAttribute CommentRequestDto requestDto) {
+        commentservice.createComment(requestDto, userDetails.getUser());
+        return "redirect:/";
     }
 
     // 댓글 삭제
-    @ResponseBody
     @DeleteMapping("/comments/{commentId}")
     public String deleteComment(@PathVariable Long commentId, @AuthenticationPrincipal UserDetailsImpl userDetails){
         return commentservice.deleteComment(commentId,userDetails.getUser());
     }
 
     // 댓글 수정
-    @ResponseBody
     @PutMapping("/comments/{commentId}")
     public String updateComment(@PathVariable Long commentId, @RequestBody PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails){
         return commentservice.updateComment(commentId,requestDto,userDetails.getUser());
