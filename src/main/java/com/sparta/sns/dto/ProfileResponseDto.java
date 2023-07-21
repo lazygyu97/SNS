@@ -14,13 +14,14 @@ import lombok.Setter;
 
 public class ProfileResponseDto {
 	private String nickname;
-
+	private String username;
 	private String email;
 
 	private String oneLine;
 
 	public ProfileResponseDto(User user) {
 		this.nickname =user.getNickname();
+		this.username = user.getUsername();
 		this.email = user.getEmail();
 		this.oneLine = user.getOneLine();
 	}

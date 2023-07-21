@@ -26,8 +26,8 @@ public class ProfileService {
     private final PasswordManagerRepository passwordManagerRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public ProfileResponseDto myProfile(User user) {
-        User loginedUser = findUser(user.getUsername());
+    public ProfileResponseDto userProfile(String username) {
+        User loginedUser = findUser(username);
         return new ProfileResponseDto(loginedUser);
     }
 
@@ -36,7 +36,7 @@ public class ProfileService {
         User loginedUser = findUser(user.getUsername());
         // email 중복확인
         Optional<User> checkEmail = userRepository.findByEmail(requestDto.getEmail());
-        //다른 이메일로 바꾸는데 그 이메일이
+        //다른 이메일로 바꾸는데 그 이메일이 이미 존재하는 경우
         if (!loginedUser.getEmail().equals(requestDto.getEmail())) {
             if (checkEmail.isPresent()) {
                 throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
@@ -65,7 +65,7 @@ public class ProfileService {
             System.out.println("로그:"+usedPasswords);
             for(String usedPassword : usedPasswords){
 
-                //최바꾸려는 비밀번호가 패스워드관리테이블 내 최근 3개의 비밀번호 중 하나와 일치하는 경우
+                //바꾸려는 비밀번호가 패스워드관리테이블 내 최근 3개의 비밀번호 중 하나와 일치하는 경우
                 if(passwordEncoder.matches(requestDto.getNewPassword(),usedPassword)){
                     System.out.println("비밀번호가 같음.");
                     throw new IllegalArgumentException("최근 3회 이내 사용된 비밀번호로는 바꿀 수 없습니다.");

@@ -1,5 +1,6 @@
 package com.sparta.sns.service;
 
+import com.sparta.sns.dto.CommentRequestDto;
 import com.sparta.sns.dto.PostRequestDto;
 import com.sparta.sns.entity.Comment;
 import com.sparta.sns.entity.Post;
@@ -19,9 +20,9 @@ public class Commentservice {
     private PostRepository postRepository;
 
     // 댓글 작성
-    public String createComment(Long id, PostRequestDto requestDto, User user) {
+    public String createComment(CommentRequestDto requestDto, User user) {
         //게시글의 DB 저장 유무 확인 및 가져오기
-        Post post = postRepository.findById(id).orElseThrow(() ->
+        Post post = postRepository.findById(requestDto.getPostId()).orElseThrow(() ->
                         new IllegalArgumentException("선택한 글은 존재하지 않습니다."));
 
         // entity 생성
