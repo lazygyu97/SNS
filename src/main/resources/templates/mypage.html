@@ -207,6 +207,7 @@
             margin-bottom: 20px;
         }
     </style>
+    <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
     <script>
         document.getElementById("comment-id-submit").addEventListener("click", function () {
             var form = document.getElementById("comment-form");
@@ -241,6 +242,7 @@
 
         }
 
+
         function saveProfile() {
 
             let nickname = document.getElementById("nickname");
@@ -260,9 +262,7 @@
                 };
                 fetch("/api/myprofile", {
                     method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
+                    headers: {"Content-Type": "application/json"},
                     body: JSON.stringify(requestDto)
                 })
                     .then(function (response) {
@@ -294,7 +294,87 @@
 
         function changePassword() {
             window.location.href = "/api/myprofile/password";
+        }
+        function showFollowers() {
+            let username = document.getElementById("username").textContent;
+            console.log(username);
+            fetch(`/api/followers/${username}`)
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (responseDto) {
+                    $('#follower-list').empty();
+                    responseDto.forEach(function (follower) {
+                        let username = follower.username;
+                        let email = follower.email;
+                        let nickname = follower.nickname;
+                        let followingDateTime = follower.followingDateTime;
+                        let temp_html = `
+                                <a href="${username}" role="link"
+                                   tabindex="0"
+                                   style="height: 44px; width: 44px;"><img
+                                        alt="${username}님의 프로필 사진"
+                                        src="https://scontent-ssn1-1.cdninstagram.com/v/t51.2885-19/342230601_670501178168655_2562967830462618991_n.jpg?stp=dst-jpg_s150x150&amp;_nc_ht=scontent-ssn1-1.cdninstagram.com&amp;_nc_cat=103&amp;_nc_ohc=YaP78wU9pccAX_tPuAv&amp;edm=APQMUHMBAAAA&amp;ccb=7-5&amp;oh=00_AfDcHlGkCxrRhcxGI7a0O1Z0AhiuXxcCVAX1REL9r80N8A&amp;oe=64BF00A0&amp;_nc_sid=6ff7c8"></a>
+                                <a href="${username}" role="link"><span>${username}</span></a>
+                                <div>${nickname}</div>
+                                <div>${email}</div>
+                                <div>팔로우한 날짜 :<span>${followingDateTime}</span></div>
+                                <button id="unfollowButton" name="unfollow" onclick="unFollow(this)" value="${username}">팔로우취소</button>
+                        `
+                        $('#follower-list').append(temp_html);
+                    });
+                });
+        }
 
+        function showFollowings() {
+            let username = document.getElementById("username").textContent;
+            fetch(`/api/followings/${username}`)
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (responseDto) {
+                    $('#following-list').empty();
+                    responseDto.forEach(function (follower) {
+                        let username = follower.username;
+                        let email = follower.email;
+                        let nickname = follower.nickname;
+                        let followingDateTime = follower.followingDateTime;
+                        let temp_html = `
+                                <a href="${username}" role="link"
+                                   tabindex="0"
+                                   style="height: 44px; width: 44px;"><img
+                                        alt="${username}님의 프로필 사진"
+                                        src="https://scontent-ssn1-1.cdninstagram.com/v/t51.2885-19/342230601_670501178168655_2562967830462618991_n.jpg?stp=dst-jpg_s150x150&amp;_nc_ht=scontent-ssn1-1.cdninstagram.com&amp;_nc_cat=103&amp;_nc_ohc=YaP78wU9pccAX_tPuAv&amp;edm=APQMUHMBAAAA&amp;ccb=7-5&amp;oh=00_AfDcHlGkCxrRhcxGI7a0O1Z0AhiuXxcCVAX1REL9r80N8A&amp;oe=64BF00A0&amp;_nc_sid=6ff7c8"></a>
+                                <a href="${username}" role="link"><span>${username}</span></a>
+                                <div>${nickname}</div>
+                                <div>${email}</div>
+                                <div>팔로우한 날짜 :<span>${followingDateTime}</span></div>
+                        `
+                        $('#following-list').append(temp_html);
+                    });
+                });
+        }
+
+        function unFollow(button) {
+            let username = button.value;
+            console.log(username);
+            fetch(`/api/follow/${username}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({})
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (responseDto) {
+                    alert(responseDto.msg);
+                    showFollowers();//삭제된 후 팔로워 새로고침
+                })
+                .catch(function (error) {
+                    console.error("팔로우취소하기 실패", error);
+                });
         }
 
         function cancelButton() {
@@ -372,6 +452,7 @@
             }
         }
     </script>
+
 </head>
 <body>
 <div class="header">
@@ -383,12 +464,11 @@
     <div class="greeting">
         <span th:text="${nickname}"></span>님 안녕하세요
     </div>
-
 </div>
-
 <div class="profile-container">
     <img src="/images/default.png" class="profile-image">
     <div class="profile-info">
+        <div id="username" name="username" contenteditable="false" th:text="${username}"></div>
         <div id="nickname" name="nickname" contenteditable="false" class="profile-field" th:text="${nickname}"></div>
         <div id="email" name="email" contenteditable="false" class="profile-field" th:text="${email}"></div>
         <div id="oneLine" name="oneLine" contenteditable="false" class="profile-field" th:text="${oneLine}"></div>
@@ -402,7 +482,19 @@
         </div>
     </div>
 </div>
-
+  <div>
+    <button id="followers" name="followers" onclick="showFollowers()">팔로워</button>
+    <button id="followings" name="followings" onclick="showFollowings()">팔로잉</button>
+        <h1 dir="auto" tabindex="-1" style="width: calc(100% - 100px);">
+        <a onclick="showFollowers()">팔로워</a>
+    </h1>
+    <div id="follower-list">
+    </div>
+    <h1 dir="auto" tabindex="-1" style="width: calc(100% - 100px);">
+        <a onclick="showFollowings()">팔로잉</a>
+    </h1>
+    <div id="following-list">
+  </div>
 <div id="post-form" class="post-form" style="display: none">
     <input type="text" name="content" id="content" placeholder="글 작성" class="post-input-box">
     <button onclick="submitForm()">post</button>

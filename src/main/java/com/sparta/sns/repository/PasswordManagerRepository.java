@@ -13,8 +13,8 @@ public interface PasswordManagerRepository extends JpaRepository<PasswordManager
 
     Optional<PasswordManager> findByUser(User user);
 
-    //DESC : 내림차순
+    //DESC : 내림차순(높은숫자부터 낮은숫자)
     //LIMIT 3 : 3건만 조회
-    @Query("SELECT pm.password FROM PasswordManager pm WHERE pm.user = :user ORDER BY pm.createdAt DESC LIMIT 3")
+    @Query("SELECT pm.password FROM PasswordManager pm WHERE pm.user = :user ORDER BY pm.id DESC LIMIT 3")
     List<String> findPasswordTopThree(@Param("user") User user);
 }

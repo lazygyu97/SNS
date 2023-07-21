@@ -168,6 +168,7 @@
 <body>
 <div class="header">
     <img class="logo" src="/images/logo.png">
+
     <div>
         <img id="showForm" style="display: inline" class="plus-button" src="/images/plus.png" onclick="showForm()">
         <img id="hideForm" style="display: none" class="minus-button" src="/images/minus.png" onclick="hideForm()">
@@ -189,7 +190,7 @@
     <div th:each="postList, status : ${postList}" class="post-item">
         <div class="section">
             <div class="post-content">
-                <span th:text="${postList.getUsername()}" style="margin-bottom: 5px;"></span>
+                <a th:href="'api/userprofile/'+${postList.getUsername()}" style="text-decoration: none" ><span th:text="${postList.getUsername()}" style="margin-bottom: 5px;"></span></a>
                 <span style="margin-top: 10px" th:text="${postList.getContent()}"></span>
             </div>
             <div class="comment-section">
