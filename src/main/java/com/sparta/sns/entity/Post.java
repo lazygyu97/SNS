@@ -38,7 +38,7 @@ public class Post extends TimeStamped {
     }
 
     public void report(){
-        this.repoort_flag = true;
+        this.report_flag = true;
     }
 
     public void update(PostRequestDto requestDto) {
