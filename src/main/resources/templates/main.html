@@ -111,7 +111,7 @@
     <img class="logo" src="/images/logo.png">
     <img class="plus-button" src="/images/plus.png" onclick="showForm()">
     <div class="greeting">
-        <span th:text="${nickname}"></span>님 안녕하세요
+        <a href="api/mypage" style="text-decoration: none"><span th:text="${nickname}"></span></a>님 안녕하세요
     </div>
 
 </div>
@@ -124,7 +124,7 @@
 
 <div class="post-list">
     <div th:each="list, status : ${list}" class="post-item">
-        <span th:text="${list.getUsername()}"></span>
+        <a th:href="'api/userprofile/'+${list.getUsername()}" style="text-decoration: none" ><span th:text="${list.getUsername()}"></span></a>
         <span th:text="${list.getContent()}"></span>
     </div>
 </div>

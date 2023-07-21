@@ -26,8 +26,8 @@ public class ProfileService {
     private final PasswordManagerRepository passwordManagerRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public ProfileResponseDto myProfile(User user) {
-        User loginedUser = findUser(user.getUsername());
+    public ProfileResponseDto userProfile(String username) {
+        User loginedUser = findUser(username);
         return new ProfileResponseDto(loginedUser);
     }
 

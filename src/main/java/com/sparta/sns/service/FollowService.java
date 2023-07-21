@@ -2,6 +2,7 @@ package com.sparta.sns.service;
 
 import com.sparta.sns.dto.ApiResponseDto;
 import com.sparta.sns.dto.FollowUserResponseDto;
+import com.sparta.sns.dto.ProfileResponseDto;
 import com.sparta.sns.entity.Follow;
 import com.sparta.sns.entity.User;
 import com.sparta.sns.repository.FollowRepository;
@@ -20,6 +21,10 @@ public class FollowService {
     UserRepository userRepository;
     FollowRepository followRepository;
 
+    public ProfileResponseDto userProfile(String username) {
+        User targetUser = findUser(username);
+        return new ProfileResponseDto(targetUser);
+    }
 
     //파라미터 username의 팔로워(user가 팔로우하는 사람) 확인
     public List<FollowUserResponseDto> showFollowers(String username) {
@@ -54,6 +59,9 @@ public class FollowService {
         //팔로우할 유저
         User followingUser = findUser(followingUsername);
 
+        if (loginedUser == followingUser){
+            throw new IllegalArgumentException("나 자신을 팔로우할 수 없습니다.");
+        }
         //이미 팔로우 상태인지 확인
         if(findFollow(loginedUser,followingUser)!=null){
             throw new IllegalArgumentException("이미 팔로우된 사용자 입니다.");

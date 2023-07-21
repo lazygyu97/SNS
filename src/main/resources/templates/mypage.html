@@ -17,6 +17,7 @@
             border: 1px solid gray;
         }
     </style>
+    <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
     <script>
         //화면 접근 시 프로필 정보 불러오기
         window.onload = function () {
@@ -32,8 +33,10 @@
                     let nickname = document.getElementById("nickname");
                     let email = document.getElementById("email");
                     let oneLine = document.getElementById("oneLine");
+                    let username = document.getElementById("username");
                     nickname.textContent = responseDto.nickname;
                     email.textContent = responseDto.email;
+                    username.textContent = responseDto.username;
                     if (responseDto.oneLine === null) {
                         oneLine.textContent ="나의 한줄 소개를 입력해주세요."
                     }else{
@@ -57,7 +60,6 @@
         }
 
         function saveProfile(){
-
             let nickname = document.getElementById("nickname");
             let email = document.getElementById("email");
             let oneLine = document.getElementById("oneLine");
@@ -75,9 +77,7 @@
                 };
                 fetch("/api/myprofile", {
                     method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
+                    headers: {"Content-Type": "application/json"},
                     body: JSON.stringify(requestDto)
                 })
                     .then(function (response) {
@@ -106,22 +106,115 @@
         }
         function modifyPassword(){
             window.location.href = "/api/myprofile/password";
-
         }
+        function showFollowers() {
+            let username = document.getElementById("username").textContent;
+            console.log(username);
+            fetch(`/api/followers/${username}`)
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (responseDto) {
+                    $('#follower-list').empty();
+                    responseDto.forEach(function (follower) {
+                        let username = follower.username;
+                        let email = follower.email;
+                        let nickname = follower.nickname;
+                        let followingDateTime = follower.followingDateTime;
+                        let temp_html = `
+                                <a href="${username}" role="link"
+                                   tabindex="0"
+                                   style="height: 44px; width: 44px;"><img
+                                        alt="${username}님의 프로필 사진"
+                                        src="https://scontent-ssn1-1.cdninstagram.com/v/t51.2885-19/342230601_670501178168655_2562967830462618991_n.jpg?stp=dst-jpg_s150x150&amp;_nc_ht=scontent-ssn1-1.cdninstagram.com&amp;_nc_cat=103&amp;_nc_ohc=YaP78wU9pccAX_tPuAv&amp;edm=APQMUHMBAAAA&amp;ccb=7-5&amp;oh=00_AfDcHlGkCxrRhcxGI7a0O1Z0AhiuXxcCVAX1REL9r80N8A&amp;oe=64BF00A0&amp;_nc_sid=6ff7c8"></a>
+                                <a href="${username}" role="link"><span>${username}</span></a>
+                                <div>${nickname}</div>
+                                <div>${email}</div>
+                                <div>팔로우한 날짜 :<span>${followingDateTime}</span></div>
+                                <button id="unfollowButton" name="unfollow" onclick="unFollow(this)" value="${username}">팔로우취소</button>
+                        `
+                        $('#follower-list').append(temp_html);
+                    });
+                });
+        }
+
+        function showFollowings() {
+            let username = document.getElementById("username").textContent;
+            fetch(`/api/followings/${username}`)
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (responseDto) {
+                    $('#following-list').empty();
+                    responseDto.forEach(function (follower) {
+                        let username = follower.username;
+                        let email = follower.email;
+                        let nickname = follower.nickname;
+                        let followingDateTime = follower.followingDateTime;
+                        let temp_html = `
+                                <a href="${username}" role="link"
+                                   tabindex="0"
+                                   style="height: 44px; width: 44px;"><img
+                                        alt="${username}님의 프로필 사진"
+                                        src="https://scontent-ssn1-1.cdninstagram.com/v/t51.2885-19/342230601_670501178168655_2562967830462618991_n.jpg?stp=dst-jpg_s150x150&amp;_nc_ht=scontent-ssn1-1.cdninstagram.com&amp;_nc_cat=103&amp;_nc_ohc=YaP78wU9pccAX_tPuAv&amp;edm=APQMUHMBAAAA&amp;ccb=7-5&amp;oh=00_AfDcHlGkCxrRhcxGI7a0O1Z0AhiuXxcCVAX1REL9r80N8A&amp;oe=64BF00A0&amp;_nc_sid=6ff7c8"></a>
+                                <a href="${username}" role="link"><span>${username}</span></a>
+                                <div>${nickname}</div>
+                                <div>${email}</div>
+                                <div>팔로우한 날짜 :<span>${followingDateTime}</span></div>
+                        `
+                        $('#following-list').append(temp_html);
+                    });
+                });
+        }
+        function unFollow(button) {
+            let username = button.value;
+            console.log(username);
+            fetch(`/api/follow/${username}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({})
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (responseDto) {
+                    alert(responseDto.msg);
+                    showFollowers();//삭제된 후 팔로워 새로고침
+                })
+                .catch(function (error) {
+                    console.error("팔로우취소하기 실패", error);
+                });
+        }
+
     </script>
 </head>
 <body>
 <div id="mypage-form">
     <div id="mypage-title">CHECK SHIRTS - 마이페이지</div>
+    <div id="username" name="username" contenteditable="false" >아이디</div>
     <div id="nickname" name="nickname" contenteditable="false" class="profile-field">닉네임</div>
     <div id="email" name="email" contenteditable="false" class="profile-field">이메일@이메일주소.com</div>
     <div id="oneLine" name="oneLine" contenteditable="false" class="profile-field">한줄 소개</div>
     <div id="follow" name="follow" >팔로우</div>
-    <div id="message" name="message">DM</div>
     <button id="modifyButton" onclick="modifyProfile()" style="display:block;">프로필 수정</button>
     <button id="saveButton" onclick="saveProfile()" style="display: none;">프로필 저장</button>
 <!--    <div id="follow" name="follow" >마지막 비밀번호 변경일 : </div>-->
     <button id="modifyPasswordButton" onclick="modifyPassword()" style="display:block;">비밀번호 변경</button>
+    <button id="followers" name="followers" onclick="showFollowers()">팔로워</button>
+    <button id="followings" name="followings" onclick="showFollowings()">팔로잉</button>
+    <div id="message" name="message">DM</div>
+    <h1 dir="auto" tabindex="-1" style="width: calc(100% - 100px);">
+        <a onclick="showFollowers()">팔로워</a>
+    </h1>
+    <div id="follower-list">
+    </div>
+    <h1 dir="auto" tabindex="-1" style="width: calc(100% - 100px);">
+        <a onclick="showFollowings()">팔로잉</a>
+    </h1>
+    <div id="following-list">
+    </div>
 
 </div>
 </body>

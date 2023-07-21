@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -42,7 +43,17 @@ public class ProfileController {
 
     @GetMapping("/myprofile")
     public ResponseEntity<ProfileResponseDto> myProfile(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return ResponseEntity.ok().body(profileService.myProfile(userDetails.getUser()));
+        return ResponseEntity.ok().body(profileService.userProfile(userDetails.getUser().getUsername()));
+    }
+    @GetMapping("/userprofile/{username}")
+    public String userPage(Model model, @PathVariable String username,@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        ProfileResponseDto profileResponseDto = profileService.userProfile(username);
+        //본인 페이지로 이동시도할 시, myProfile로 이동
+        if(username.equals(userDetails.getUsername())){
+            return "mypage";
+        }
+        model.addAttribute("profile",profileResponseDto);
+        return "userprofile";
     }
 
     @PutMapping("/myprofile")

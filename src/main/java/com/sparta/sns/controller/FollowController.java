@@ -6,6 +6,7 @@ import com.sparta.sns.security.UserDetailsImpl;
 import com.sparta.sns.service.FollowService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -21,16 +22,20 @@ import java.util.List;
 public class FollowController {
 
     private final FollowService followService;
+    @ExceptionHandler
+    public ResponseEntity<ApiResponseDto> handleException(IllegalArgumentException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponseDto(ex.getMessage()));
+    }
 
     //사용자의 팔로우정보 가져오기
     @GetMapping("/followers/{username}")
-    public ResponseEntity<List<FollowUserResponseDto>> showFollowers(@PathVariable String username, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<List<FollowUserResponseDto>> showFollowers(@PathVariable String username) {
         return ResponseEntity.ok().body(followService.showFollowers(username));
     }
 
     //사용자의 팔로잉 정보 가져오기
     @GetMapping("/followings/{username}")
-    public ResponseEntity<List<FollowUserResponseDto>> showFollowings(@PathVariable String username, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<List<FollowUserResponseDto>> showFollowings(@PathVariable String username) {
         return ResponseEntity.ok().body(followService.showFollowings(username));
     }
 
