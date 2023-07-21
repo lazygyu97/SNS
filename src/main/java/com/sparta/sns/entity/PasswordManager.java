@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Table(name = "passwordManager")
-public class PasswordManager extends TimeStamped {
+public class PasswordManager{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
