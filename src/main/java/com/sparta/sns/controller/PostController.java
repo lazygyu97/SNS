@@ -2,12 +2,14 @@ package com.sparta.sns.controller;
 
 import com.sparta.sns.dto.PostRequestDto;
 import com.sparta.sns.dto.PostResponseDto;
+import com.sparta.sns.dto.ProfileRequestDto;
 import com.sparta.sns.security.UserDetailsImpl;
 import com.sparta.sns.service.PostService;
 import io.jsonwebtoken.JwtException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -20,13 +22,17 @@ public class PostController {
         this.postService = postService;
     }
 
-
-    // 게시글 작성 - 로그인, 작성 내용 필요
+    // 게시글 작성 - 로그인, 이미지, 작성 내용 필요
     @PostMapping("/posts")
-    public String createPost(@RequestBody PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails){
+    public String createPost(@RequestPart (value = "content") String content,
+                             @RequestPart(value = "file") MultipartFile image,
+                             @AuthenticationPrincipal UserDetailsImpl userDetails){
         // 토큰 검사
         checkToken(userDetails);
-        postService.createPost(requestDto,userDetails.getUser());
+
+        PostRequestDto requestDto = new PostRequestDto(content);
+
+        postService.createPost(requestDto,image,userDetails.getUser());
         return "redirect:/";
     }
 
@@ -34,6 +40,8 @@ public class PostController {
     @ResponseBody
     @GetMapping("/all-posts")
     public List<PostResponseDto> getAllPosts(){
+
+        System.out.println("controller");
         return postService.getAllPosts();
     }
 
@@ -41,6 +49,8 @@ public class PostController {
     @PutMapping("/posts/{postid}")
     public String updatePost(@PathVariable Long id, @RequestBody PostRequestDto requestDto,  @AuthenticationPrincipal UserDetailsImpl userDetails){
         // 토큰 검사
+
+        System.out.println("controller");
         checkToken(userDetails);
         return postService.updatePost(id, requestDto, userDetails.getUser());
     }
@@ -49,6 +59,8 @@ public class PostController {
     @DeleteMapping("/posts/{postid}")
     public String deletePost(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
         // 토큰 검사
+
+        System.out.println("controller");
         checkToken(userDetails);
         return postService.deletePost(id, userDetails.getUser());
     }
@@ -57,6 +69,8 @@ public class PostController {
     @DeleteMapping("/posts/report/{postid}")
     public String reportPost(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
         // 토큰 검사
+
+        System.out.println("controller");
         checkToken(userDetails);
         return postService.reportPost(id);
     }

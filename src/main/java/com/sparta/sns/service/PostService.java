@@ -1,5 +1,6 @@
 package com.sparta.sns.service;
 
+import com.sparta.sns.config.FileComponent;
 import com.sparta.sns.dto.ApiResponseDto;
 import com.sparta.sns.dto.PostRequestDto;
 import com.sparta.sns.dto.PostResponseDto;
@@ -10,7 +11,9 @@ import com.sparta.sns.repository.PostRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,21 +23,32 @@ public class PostService {
 
     private PostRepository postRepository;
 
-    // 게시글 작성
-    public ApiResponseDto createPost(PostRequestDto requestDto, User user) {
+    // 이미지 업로드
+    private final FileComponent fileComponent;
 
+    // 게시글 작성
+    public ApiResponseDto createPost(PostRequestDto requestDto, MultipartFile file, User user) {
         String content = requestDto.getContent();
 
         if (content.isEmpty()){
             throw new IllegalArgumentException("글을 작성해주세요.");
         }
 
+        // file 비어있지 않으면 imageUrl set
+        try {
+            if(!file.isEmpty()) {
+                String storedFileName = fileComponent.upload(file);
+                requestDto.setImageUrl(storedFileName);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         // Post 객체 만들기
-        Post post = new Post(content,user);
+        Post post = new Post(requestDto,user);
 
         // Post 객체 DB에 저장
         postRepository.save(post);
-
         return new ApiResponseDto("글 작성 완료");
     }
 

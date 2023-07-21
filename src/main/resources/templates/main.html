@@ -183,7 +183,8 @@
 
 <div id="post-form" class="post-form" style="display: none">
     <input type="text" name="content" id="content" placeholder="글 작성" class="post-input-box">
-    <button onclick="submitForm()">post</button>
+    <input type="file" id = "imagefile" accept="image/*" />
+    <button id = "post-btn">post</button>
 </div>
 
 <div class="post-list">
@@ -230,47 +231,54 @@
     </div>
 </div>
 
-
 <script>
-    document.getElementById("comment-id-submit").addEventListener("click", function () {
-        var form = document.getElementById("comment-form");
-        var formData = new FormData(form);
-        var jsonObject = {};
+    // POST 요청 처리
+    $('#post-btn').on('click', function(event) {
+        event.preventDefault(); // 기본 동작 중단
 
-        for (var pair of formData.entries()) {
-            jsonObject[pair[0]] = pair[1];
-        }
+        const inputData = $('#content').val(); // 입력 데이터 가져오기
+        const image = document.getElementById('imagefile').files[0]; // 입력 사진 가져오기
 
-        var jsonData = JSON.stringify(jsonObject);
-        console.log(jsonData);  // 입력값을 JSON 형식으로 출력
+        let formData = new FormData();
+        formData.append("content",inputData);
+        formData.append("file",image);
 
-        // JSON 데이터를 서버로 전송하거나 필요한 작업을 수행할 수 있습니다.
-        // 예를 들어, fetch API를 사용하여 서버로 전송하는 등의 작업을 수행할 수 있습니다.
+        $.ajax({
+            type: 'POST',
+            url: '/api/posts',
+            // data: JSON.stringify({ data: inputData }),
+            // contentType: 'application/json',
+            data : formData,
+            processData: false,
+            contentType: false,
+            enctype: 'multipart/form-data', // 이미지 업로드를 위해 추가
+            success: function(response) {
+                console.log('POST 요청 성공:', response);
+                // 여기에서 POST 요청에 대한 응답 처리
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error('POST 요청 실패:', errorThrown);
+                // 여기에서 POST 요청 실패 처리
+            }
+        });
+
+        alert(data['게시글 작성 완료!']);
+        $('#input-post').val(''); // 작성 완료 시 내용 비우기
     });
 
-    function submitForm() {
-        let content = document.getElementById("content").value;
+    $(document).ready(function () {
+        const auth = getToken();
+    })
 
-        alert(content);
-        fetch("/api/posts", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                "content": content
-            }),
-        })
-            .then((response) => {
-                if (response.ok) {
-                    window.location.href = "/"; // 메인 페이지로 리다이렉션
-                } else {
-                    throw new Error("글 작성에 실패했습니다.");
-                }
-            })
-            .catch((error) => console.log(error));
+    // 쿠키에서 인증 토큰 가져오기
+    function getToken() {
+        let auth = Cookies.get('Authorization');
+
+        if (auth === undefined) {
+            return '';
+        }
+        return auth;
     }
-
     function showForm() {
         $('#post-form').show();
         $('#hideForm').show();

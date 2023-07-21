@@ -13,12 +13,21 @@
             event.preventDefault(); // 기본 동작 중단
 
             const inputData = $('#input-post').val(); // 입력 데이터 가져오기
+            const image = document.getElementById('imagefile').files[0]; // 입력 사진 가져오기
+
+            let formData = new FormData();
+            formData.append("content",inputData);
+            formData.append("file",image);
 
             $.ajax({
                 type: 'POST',
                 url: '/api/create-post',
-                data: JSON.stringify({ data: inputData }),
-                contentType: 'application/json',
+                // data: JSON.stringify({ data: inputData }),
+                // contentType: 'application/json',
+                data : formData,
+                processData: false,
+                contentType: false,
+                enctype: 'multipart/form-data', // 이미지 업로드를 위해 추가
                 success: function(response) {
                     console.log('POST 요청 성공:', response);
                     // 여기에서 POST 요청에 대한 응답 처리
@@ -31,14 +40,12 @@
 
             alert(data['게시글 작성 완료!']);
             $('#input-post').val(''); // 작성 완료 시 내용 비우기
-
         });
 
         $(document).ready(function () {
             const auth = getToken();
-
-
         })
+
         // 쿠키에서 인증 토큰 가져오기
         function getToken() {
             let auth = Cookies.get('Authorization');
@@ -60,6 +67,7 @@
     <div class="form-floating mb-3" id="post-input-box">
         <input type="text" class="form-control" placeholder="당신의 일상을 공유하세요!" id="input-post" />
     </div>
+
 
     <div class="mypost" id="post-button-box">
         <button class="btn btn-outline-secondary btn-lg"
