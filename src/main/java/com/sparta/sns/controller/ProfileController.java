@@ -16,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -73,20 +74,17 @@ public class ProfileController {
     }
 
     @PutMapping("/myprofile")
-    public ResponseEntity<ApiResponseDto> modifyProfile(@AuthenticationPrincipal UserDetailsImpl userDetails, @Valid @RequestBody ProfileRequestDto requestDto, BindingResult bindingResult) {
-        //validation 예외처리
-        List<FieldError> fieldErrors = bindingResult.getFieldErrors();
-        StringBuilder errorMessage = new StringBuilder();
-        //validation 예외가 1건 이상인 경우
-        if (fieldErrors.size() > 0) {
-            for (FieldError fieldError : bindingResult.getFieldErrors()) {
-                log.error(fieldError.getField() + " 필드 : " + fieldError.getDefaultMessage());
-                errorMessage.append(fieldError.getDefaultMessage()).append(" ");
-            }
-            throw new IllegalArgumentException(errorMessage.toString());
-        }
+    public ResponseEntity<ApiResponseDto> modifyProfile(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                        @RequestPart(value = "file") MultipartFile image,
+                                                        @RequestPart(value = "nickname") String nickname,
+                                                        @RequestPart(value = "email") String email,
+                                                        @RequestPart(value = "oneLine") String oneLine) {
 
-        return ResponseEntity.ok().body(profileService.modifyProfile(userDetails.getUser(), requestDto));
+        ProfileRequestDto requestDto = new ProfileRequestDto();
+        requestDto.setEmail(email);
+        requestDto.setNickname(nickname);
+        requestDto.setOneLine(oneLine);
+        return ResponseEntity.ok().body(profileService.modifyProfile(userDetails.getUser(), image, requestDto));
     }
 
     @GetMapping("/myprofile/password")

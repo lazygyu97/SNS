@@ -256,17 +256,12 @@
                 console.log("email:" + email.textContent);
                 console.log("oneLine:" + oneLine.textContent);
 
-                //request 생성
-                let requestDto = {
-                    "nickname": nickname.textContent,
-                    "email": email.textContent,
-                    "oneLine": oneLine.textContent
-                };
-
-                // form-data 생성 (file 전송을 위해)
+                // FormData 생성 (file 전송을 위해)
                 let formData = new FormData();
-                formData.append("file",image);
-                formData.append("requestDto", JSON.stringify(requestDto));
+                formData.append("file", image);
+                formData.append("nickname", nickname);
+                formData.append("email", email);
+                formData.append("oneLine", oneLine);
 
                 fetch("/api/myprofile", {
                     method: "PUT",

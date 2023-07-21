@@ -38,10 +38,13 @@ public class User extends TimeStamped {
 
     private Long kakaoId;
 
-
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
+
+    // 이미지 업로드 url
+    @Column
+    private String imageUrl;
 
     public User(String nickname,String username, String password, String email,UserRoleEnum role ) {
         this.nickname=nickname;
