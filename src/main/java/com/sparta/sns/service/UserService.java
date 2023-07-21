@@ -60,7 +60,7 @@ public class UserService {
             throw new IllegalArgumentException("이메일 인증이 수행되지 않았습니다. 이메일 인증을 완료해주세요.");
         }
         // 사용자 ROLE 확인
-        UserRoleEnum role = UserRoleEnum.DENY;//user로 바꿔서 사용
+        UserRoleEnum role = UserRoleEnum.USER;
         if (requestDto.isAdmin()) {
             if (!ADMIN_TOKEN.equals(requestDto.getAdminToken())) {
                 throw new IllegalArgumentException("관리자 암호가 틀려 등록이 불가능합니다.");
