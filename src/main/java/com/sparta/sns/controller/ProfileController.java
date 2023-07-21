@@ -53,7 +53,7 @@ public class ProfileController {
             return "mypage";
         }
         model.addAttribute("profile",profileResponseDto);
-        return "userprofile";
+        return "userpage";
     }
 
     @PutMapping("/myprofile")

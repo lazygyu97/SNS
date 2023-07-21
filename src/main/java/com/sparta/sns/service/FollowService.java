@@ -99,4 +99,17 @@ public class FollowService {
     private Follow findFollow(User user, User followingUser){
         return followRepository.findByUserAndFollowingUser(user,followingUser).orElse(null);
     }
+
+    //User의 팔로워 수 찾기
+//    private int followersNum(User user){
+//        User targetUser = findUser(user.getUsername());
+//        List<Follow> followers = followRepository.findByUser(targetUser);
+//        return followers.size();
+//    }
+//
+//    private int followingsNum(User user){
+//        User targetUser = findUser(user.getUsername());
+//        List<Follow> followings = followRepository.findByFollowingUser(targetUser);
+//        return followings.size();
+//    }
 }

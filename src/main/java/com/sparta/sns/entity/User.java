@@ -36,7 +36,6 @@ public class User extends TimeStamped {
     @Column
     private String oneLine;
 
-
     private Long kakaoId;
 
 
