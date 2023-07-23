@@ -166,6 +166,8 @@
             text-align: left;
             margin-left: 50px;
             margin-top: 10px;
+            overflow: scroll;
+
         }
 
         /* 댓글 버튼 및 댓글 폼 스타일 */
@@ -182,6 +184,7 @@
             justify-content: space-between;
             height: 160px;
         }
+
         .comment-form {
             display: flex;
             align-items: center;
@@ -308,8 +311,8 @@
             var popupWidth = 700;
             var popupHeight = 600;
             var popupX = (window.screen.width / 2) - (popupWidth / 2);
-            var popupY= (window.screen.height / 2) - (popupHeight / 2);
-            window.open("/api/myprofile/password", "Airygram::비밀번호 변경 페이지", "width=700, height=600,left="+popupX+",top="+popupY+", scrollbars= 0, toolbar=0, menubar=no");
+            var popupY = (window.screen.height / 2) - (popupHeight / 2);
+            window.open("/api/myprofile/password", "Airygram::비밀번호 변경 페이지", "width=700, height=600,left=" + popupX + ",top=" + popupY + ", scrollbars= 0, toolbar=0, menubar=no");
             // window.location.href = "/api/myprofile/password";
         }
 
@@ -325,9 +328,9 @@
                     responseDto.forEach(function (follower) {
                         let nickname = follower.nickname;
                         let image = follower.image;
-                        let username= follower.username;
-                        if (!image){
-                            image="/images/user.png"
+                        let username = follower.username;
+                        if (!image) {
+                            image = "/images/user.png"
                         }
                         let temp_html = `
                             <div>
@@ -357,8 +360,8 @@
                     responseDto.forEach(function (follower) {
                         let nickname = follower.nickname;
                         let image = follower.image;
-                        if (!image){
-                            image="/images/user.png"
+                        if (!image) {
+                            image = "/images/user.png"
                         }
                         let temp_html = `
                         <div>
@@ -479,13 +482,13 @@
                 hideBtn.style.display = "none";
             }
         }
+
         function updateImage() {
             $('#image-form').show();
         }
 
 
     </script>
-
 
 </head>
 <body>
@@ -500,8 +503,8 @@
     </div>
 </div>
 <div class="profile-container">
-<!--    프로필이미지-->
-    <div >
+    <!--    프로필이미지-->
+    <div>
         <img th:src="${image}" class="profile-image" onclick="updateImage()">
         <div id="image-form" class="image-form" style="margin-top: 20px;display: none">
             <input style="margin-left: 200px " type="file" id="profileImage" accept="image/*"/>
@@ -554,15 +557,16 @@
         <div th:each="postList, status : ${postList}" class="post-item"
              th:classappend="${postList.getImageUrl() != null} ? 'has-image' : 'no-image'">
 
+
             <div style="align-content: flex-start" th:if="${postList.getImageUrl() != null}">
                 <img style="object-fit: contain;width:400px;height:300px" th:src="${postList.getImageUrl()}">
             </div>
 
             <div class="section">
                 <div class="post-content">
-                    <a th:href="'api/userprofile/'+${postList.getUsername()}" style="text-decoration: none"><span
+                    <a th:href="'api/userprofile/'+${postList.getUsername()}" style="font-size: 20px;text-decoration: none"><span
                             th:text="${postList.getUsername()}" style="margin-bottom: 5px;"></span></a>
-                    <span style="margin-top: 10px" th:text="${postList.getContent()}"></span>
+                    <span style="font-size: 15px;margin-top: 10px" th:text="${postList.getContent()}"></span>
                 </div>
                 <div class="comment-section">
                     <div>
@@ -595,7 +599,7 @@
 
 
             <div class="comment-form">
-                <div style="margin-left: 160px;" >
+                <div style="margin-left: 160px;">
                     <form th:action="@{/api/comment}" method="post">
                         <input type="hidden" name="postId" th:value="${postList.getId()}">
                         <input class="comment-input" type="text" name="content" placeholder="댓글을 입력하세요"
@@ -604,9 +608,17 @@
                     </form>
                 </div>
 
-                <div style="margin-right:60px " th:id="'like-' + ${postList.getId()}">
+                <div style="margin-right:60px ;display: flex;flex-direction: row "
+                     th:id="'like-' + ${postList.getId()}">
                     <a th:text="${postList.getLikeCount()}"></a>
-                    <img th:onclick="'like(' + ${postList.getId()} + ')'" style="width: 20px;height: 20px" src="/images/like.png" value="">
+                    <img th:onclick="'like(' + ${postList.getId()} + ')'"
+                         style="width: 20px;height: 20px;margin-top: 8px;margin-left: 5px" src="/images/like.png"
+                         value="">
+                    <img th:onclick="'editPost(' + ${postList.getId()} + ')'"
+                         style="width: 30px;height: 30px;margin-top: 5px;margin-left: 15px" src="/images/edit.png"
+                         value="">
+                    <img th:onclick="'deletePost(' + ${postList.getId()} + ')'"
+                         style="width: 30px;height: 30px;margin-top: 5px;margin-left: 5px" src="/images/cross.png">
                 </div>
             </div>
         </div>
@@ -659,7 +671,8 @@
 
         $('#input-post').val(''); // 작성 완료 시 내용 비우기
     });
-    function like(id){
+
+    function like(id) {
         fetch(`/api/posts/${id}/like`, {
             method: "POST",
             headers: {
@@ -678,6 +691,34 @@
             .catch(function (error) {
                 alert("좋아요 실패");
             });
+    }
+
+    function deletePost(id) {
+        var result=confirm("글을 삭제하시겠습니까?");
+        if(result==true){
+            fetch(`/api/posts/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({})
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (responseDto) {
+                    alert("게시글 삭제 성공")
+                    window.location.href = "/api/mypage"
+
+                })
+                .catch(function (error) {
+                    alert("삭제 실패");
+                });
+        }else if(result==false) {
+            alert("취소했습니다.")
+        }
+
+
     }
 </script>
 </body>

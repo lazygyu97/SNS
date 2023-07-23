@@ -8,4 +8,5 @@ import lombok.Setter;
 public class CommentRequestDto {
     private Long postId;
     private String content;
+    private String username;
 }

@@ -39,6 +39,7 @@ public class HomeController {
         List<PostResponseDto> postList = postService.getAllPosts();
         List<PostResponseDto> reportPostList = postService.getReportPosts();
         List<PostResponseDto> notReportPostList = postService.getNotReportPostList();
+        List<PostResponseDto> followingUsersPosts = postService.followingUsersPosts(userDetails.getUser());
         List<User> userList = userService.getAllUsers();
 
 
@@ -68,12 +69,11 @@ public class HomeController {
         }
 
 
-        model.addAttribute("postList",notReportPostList);
+        model.addAttribute("postList1",notReportPostList);
+        model.addAttribute("postList2",followingUsersPosts);
         model.addAttribute("nickname",nickname);
         return "main";
     }
-
-
 
     @GetMapping("/deny-page")
     public String deny() {

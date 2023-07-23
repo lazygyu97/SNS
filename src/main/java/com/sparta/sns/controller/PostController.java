@@ -66,8 +66,6 @@ public class PostController {
     @DeleteMapping("/posts/{id}")
     public ResponseEntity<ApiResponseDto> deletePost(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         // 토큰 검사
-
-        System.out.println("controller");
         checkToken(userDetails);
         postService.deletePost(id, userDetails.getUser());
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponseDto("삭제 성공"));

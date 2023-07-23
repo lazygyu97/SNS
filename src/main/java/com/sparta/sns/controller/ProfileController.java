@@ -98,11 +98,7 @@ public class ProfileController {
 
     @PutMapping("/myprofile/image")
     public ResponseEntity<ApiResponseDto> updateImage(@RequestPart(value = "file") MultipartFile image, @AuthenticationPrincipal UserDetailsImpl userDetails){
-        log.info("어디까지 왔나~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        System.out.println(image);
         profileService.updateImage(image,userDetails.getUser());
-
-
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponseDto("프로필 수정 성공"));
     }
 
@@ -110,8 +106,7 @@ public class ProfileController {
     public String changePasswordPage(){
         return "changepwd";
     }
-//   <img th:onclick="'editPost(' + ${postList.getId()} + ')'" style="width: 20px;height: 20px"
-//    src="/images/edit.png" value="">
+
     @PutMapping("/myprofile/password")
     public ResponseEntity<ApiResponseDto> modifyPassword(@AuthenticationPrincipal UserDetailsImpl userDetails,@Valid @RequestBody ModifyPasswordRequestDto requestDto, BindingResult bindingResult) {
         List<FieldError> fieldErrors = bindingResult.getFieldErrors();

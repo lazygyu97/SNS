@@ -89,7 +89,6 @@ public class ProfileService {
     @Transactional
     public String updateImage(MultipartFile image,User user) {
         User loginedUser = findUser(user.getUsername());
-        log.info("확인~~~~~~~~~~~~~~~~~~~~~~₩₩");
         // file 비어있지 않으면 imageUrl set
         try {
             if(!image.isEmpty()) {
@@ -101,6 +100,7 @@ public class ProfileService {
         }
         return "수정성공";
     }
+
     //user가 db내 존재하는지 검사
     private User findUser(String username) {
         return userRepository.findByUsername(username).orElseThrow(() ->

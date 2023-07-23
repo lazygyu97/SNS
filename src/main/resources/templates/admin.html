@@ -8,8 +8,8 @@
     <!--  jquery  -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-
     <style>
+
         .header{
             margin-top: 100px;
             margin-bottom: 100px;
@@ -119,7 +119,7 @@
             <li style="margin-bottom: 10px" th:each="list : ${postList}">
                 <span class="content" th:text="${list.getContent()}"></span>
                 <span class="username" th:text="${list.getUsername()}"></span>
-                <button th:onclick="'deleteReport(' + ${list.getId()} + ')'">삭제</button>
+                <button th:onclick="'deletePost(' + ${list.getId()} + ')'">삭제</button>
             </li>
         </ul>
     </div>
@@ -295,7 +295,27 @@
                 alert("차단 해제 실패");
             });
     }
+    function deletePost(id){
+        alert("글을 삭제하시겠습니까?")
+        fetch(`/api/posts/${id}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({})
+        })
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (responseDto) {
+                alert("게시글 삭제 성공")
+                window.location.href = "/"
 
+            })
+            .catch(function (error) {
+                alert("삭제 실패");
+            });
+    }
 </script>
 </body>
 </html>

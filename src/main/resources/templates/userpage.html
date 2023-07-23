@@ -159,6 +159,7 @@
             text-align: left;
             margin-left: 50px;
             margin-top: 10px;
+            overflow: scroll;
         }
 
         /* 댓글 버튼 및 댓글 폼 스타일 */
@@ -203,7 +204,6 @@
         }
     </style>
     <script>
-
         function startFollow() {
             let username = document.getElementById("username").textContent;
             console.log(username);
@@ -263,19 +263,17 @@
 
                         let temp_html = `
                         <div>
-    <div style="align-content: flex-start">
-        <img style="width: 30px; height: 30px; border-radius: 50%" src="${image}" />
-    </div>
-    <span>${nickname}</span>
+                            <div style="align-content: flex-start">
+                                <img style="width: 30px; height: 30px; border-radius: 50%" src="${image}" />
+                            </div>
+                            <span>${nickname}</span>
 
-</div>
+                        </div>
                         `
                         $('#follower-list').append(temp_html);
                     });
                 });
         }
-        // <button id="unfollowButton" name="unfollow"
-        //     onclick="unFollow(this)" value="${username}">팔로우취소</button>
         function showFollowings() {
             let username = document.getElementById("username").textContent;
             fetch(`/api/followings/${username}`)
@@ -291,13 +289,12 @@
                             image="/images/user.png"
                         }
                         let temp_html = `
-                  <div>
-    <div style="align-content: flex-start">
-        <img style="width: 30px; height: 30px; border-radius: 50%" src="${image}" />
-
-    </div>
-    <span>${nickname}</span>
-</div>
+                                      <div>
+                                        <div style="align-content: flex-start">
+                                            <img style="width: 30px; height: 30px; border-radius: 50%" src="${image}" />
+                                        </div>
+                                        <span>${nickname}</span>
+                                    </div>
                         `
                         $('#following-list').append(temp_html);
                     });
@@ -324,10 +321,10 @@
              th:text="${profile.oneLine}"></div>
         <button id="followButton" name="follow" onclick="startFollow()">팔로우하기</button>
         <button id="unfollowButton" name="unfollow" onclick="unFollow()">팔로우취소</button>
-
     </div>
 
 </div>
+
 <div style="margin-top: 20px; display: flex;justify-content: space-between">
     <div style="width: 50%; display: flex;
             flex-direction: column;text-align: center;">
@@ -347,6 +344,7 @@
     </div>
 
 </div>
+
 <div>
 
     <div id="post-form" class="post-form" style="display: none">
@@ -364,9 +362,9 @@
 
             <div class="section">
                 <div class="post-content">
-                    <a th:href="'/api/userprofile/'+${postList.getUsername()}" style="text-decoration: none"><span
+                    <a th:href="'/api/userprofile/'+${postList.getUsername()}" style="font-size: 20px;text-decoration: none"><span
                             th:text="${postList.getUsername()}" style="margin-bottom: 5px;"></span></a>
-                    <span style="margin-top: 10px" th:text="${postList.getContent()}"></span>
+                    <span style="margin-top: 10px;font-size: 15px;" th:text="${postList.getContent()}"></span>
                 </div>
                 <div class="comment-section">
                     <div>
@@ -399,8 +397,9 @@
 
             <div class="comment-form">
                 <div style="margin-left: 160px;" >
-                    <form th:action="@{/api/comments}" method="post">
+                    <form th:action="@{/api/commentss}" method="post">
                         <input type="hidden" name="postId" th:value="${postList.getId()}">
+                        <input type="hidden" name="username" th:value="${profile.username}">
                         <input class="comment-input" type="text" name="content" placeholder="댓글을 입력하세요"
                                required>
                         <button class="comment-submit" type="submit">댓글 등록</button>
@@ -449,6 +448,62 @@
                 alert("좋아요 실패");
             });
     }
+
+
+    function report(id) {
+
+        var result=confirm("글을 신고하시겠습니까?")
+
+        if(result==true){
+            fetch(`/api/posts/report/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({})
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (responseDto) {
+                    alert("관리자가 검토할 예정입니다.");
+                    window.location.reload()
+
+                })
+                .catch(function (error) {
+                    alert("신고 실패");
+                });
+        }else if(result==false) {
+            alert("취소했습니다.")
+        }
+
+
+    }
+
+    function showComment(postId) {
+        var commentDiv = document.getElementById("comment-" + postId);
+        var showBtn = document.getElementById("showComment-" + postId);
+        var hideBtn = document.getElementById("hideComment-" + postId);
+
+        if (commentDiv && showBtn && hideBtn) {
+            commentDiv.style.display = "block";
+            showBtn.style.display = "none";
+            hideBtn.style.display = "inline";
+        }
+    }
+
+    function hideComment(postId) {
+        var commentDiv = document.getElementById("comment-" + postId);
+        var showBtn = document.getElementById("showComment-" + postId);
+        var hideBtn = document.getElementById("hideComment-" + postId);
+
+        if (commentDiv && showBtn && hideBtn) {
+            commentDiv.style.display = "none";
+            showBtn.style.display = "inline";
+            hideBtn.style.display = "none";
+        }
+    }
+
 </script>
 </body>
 </html>
