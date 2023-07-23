@@ -264,7 +264,8 @@
                         let temp_html = `
                         <div>
                             <div style="align-content: flex-start">
-                                <img style="width: 30px; height: 30px; border-radius: 50%" src="${image}" />
+                       <a href="/api/userprofile/${username}" style="text-decoration: none">
+                                    <img style="width: 30px; height: 30px; border-radius: 50%" src="${image}" /></a>
                             </div>
                             <span>${nickname}</span>
 
@@ -291,7 +292,8 @@
                         let temp_html = `
                                       <div>
                                         <div style="align-content: flex-start">
-                                            <img style="width: 30px; height: 30px; border-radius: 50%" src="${image}" />
+                                 <a href="/api/userprofile/${username}" style="text-decoration: none">
+                                    <img style="width: 30px; height: 30px; border-radius: 50%" src="${image}" /></a>
                                         </div>
                                         <span>${nickname}</span>
                                     </div>

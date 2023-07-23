@@ -52,16 +52,6 @@ public class PostController {
         return postService.getAllPosts();
     }
 
-    // 게시글 조회 (팔로잉 목록) > 팔로잉 구현 이후 구현!/ 게시글 수정
-    @PutMapping("/posts/{postid}")
-    public String updatePost(@PathVariable Long id, @RequestBody PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        // 토큰 검사
-
-        System.out.println("controller");
-        checkToken(userDetails);
-        return postService.updatePost(id, requestDto, userDetails.getUser());
-    }
-
     // 게시글 삭제
     @DeleteMapping("/posts/{id}")
     public ResponseEntity<ApiResponseDto> deletePost(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -100,6 +90,27 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponseDto("게시글 좋아요 성공"));
     }
 
+    @PutMapping("/posts/update1/{id}")
+    public ResponseEntity<ApiResponseDto> updatePost1(@RequestPart(value = "content") String content,
+                                                     @Nullable @RequestPart(value = "file") MultipartFile image,
+                                                     @AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                     @PathVariable Long id) {
+        // 토큰 검사
+        checkToken(userDetails);
+
+        postService.updatePost2(id,userDetails.getUser(),content,image);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponseDto("글 수정 성공"));
+    }
+    @PutMapping("/posts/update2/{id}")
+    public ResponseEntity<ApiResponseDto> updatePost2(@RequestPart(value = "content") String content,
+                                                     @AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                     @PathVariable Long id) {
+        // 토큰 검사
+        checkToken(userDetails);
+
+        postService.updatePost1(id,userDetails.getUser(),content);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponseDto("글 수정 성공"));
+    }
 
 
     // 로그인 토큰 검증

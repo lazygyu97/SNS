@@ -64,7 +64,11 @@ public class Post extends TimeStamped {
     }
 
 
-    public void update(PostRequestDto requestDto) {
-        this.content =  requestDto.getContent();
+    public void update1(String content) {
+        this.content = content;
+    }
+    public void update2(String content,String imageUrl) {
+        this.content = content;
+        this.imageUrl = imageUrl;
     }
 }

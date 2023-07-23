@@ -172,9 +172,29 @@ public class PostService {
 
     // 게시글 수정
     @Transactional
-    public String updatePost(Long id, PostRequestDto requestDto, User user) {
+    public String updatePost1(Long id,User user,String content) {
         Post post = confirmUser(id, user);
-        post.update(requestDto);
+        post.update1(content);
+
+        return "수정 완료";
+    }
+    @Transactional
+    public String updatePost2(Long id,User user,String content,MultipartFile file) {
+        Post post = confirmUser(id, user);
+
+        if (content.isEmpty()) {
+            throw new IllegalArgumentException("글을 작성해주세요.");
+        }
+
+        // file 비어있지 않으면 imageUrl set
+        try {
+            if (!file.isEmpty()) {
+                String storedFileName = fileComponent.upload(file);
+                post.update2(content,storedFileName);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         return "수정 완료";
     }
