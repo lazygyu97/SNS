@@ -35,7 +35,7 @@ public class ProfileController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponseDto(ex.getMessage()));
     }
 
-    @GetMapping("/mypage")
+    @GetMapping("/userprofile/mypage")
     public String myPage(@AuthenticationPrincipal UserDetailsImpl userDetails, Model model) {
 
         String username=userDetails.getUsername();
