@@ -1,6 +1,5 @@
 package com.sparta.sns.controller;
 
-import com.sparta.sns.dto.CommentResponseDto;
 import com.sparta.sns.dto.DailyPostCountDto;
 import com.sparta.sns.dto.PostResponseDto;
 import com.sparta.sns.dto.UserGraphResponseDto;
@@ -32,9 +31,14 @@ public class HomeController {
 
     @GetMapping("/")
     public String goHome(@AuthenticationPrincipal UserDetailsImpl userDetails, Model model) {
-
+        if(userDetails ==null){
+            return "login";
+        }
+        System.out.println(userDetails.getUsername());
         UserRoleEnum role = userDetails.getUser().getRole();
         List<PostResponseDto> postList = postService.getAllPosts();
+        List<PostResponseDto> reportPostList = postService.getReportPosts();
+        List<PostResponseDto> notReportPostList = postService.getNotReportPostList();
         List<User> userList = userService.getAllUsers();
 
 
@@ -50,6 +54,7 @@ public class HomeController {
             model.addAttribute("dailyUserCountList", dailyUserCountList);
 
             //사용자 및 게시글 관리
+            model.addAttribute("report",reportPostList);
             model.addAttribute("postList",postList);
             model.addAttribute("userList",userList);
 
@@ -63,14 +68,14 @@ public class HomeController {
         }
 
 
-        model.addAttribute("postList",postList);
+        model.addAttribute("postList",notReportPostList);
         model.addAttribute("nickname",nickname);
         return "main";
     }
 
 
 
-    @GetMapping("/deny")
+    @GetMapping("/deny-page")
     public String deny() {
         return "deny";
     }

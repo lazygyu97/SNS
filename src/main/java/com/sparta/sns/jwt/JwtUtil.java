@@ -13,12 +13,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 // Util class : 특정한 매개변수 혹은 파라미터에 대한 어떠한 작업을 수행하는 매서드들이 존재하는 클래스
 //             --> 다른 객체에 의존하지 않고 하나의 모듈로서 동작하는 클래스
@@ -46,9 +51,13 @@ public class JwtUtil {
     // Token 식별자
     public static final String BEARER_PREFIX = "Bearer "; //-> Bearer 이 붙어 있으면 해당하는 값은 Token임을 알려주는 식별자.(규칙)
 
+    //Token 블랙 리스트
+    private final Set<String> tokenBlacklist = new HashSet<>();
+
+
     // 토큰 만료시간
     private final long TOKEN_TIME = 60 * 60 * 1000L; // 60분
-
+//    private final long TOKEN_TIME = 60 * 1000L;
     @Value("${jwt.secret.key}") // Base64 Encode 한 SecretKey
     private String secretKey; //application.properties에 선언되어 있는 값을 가져온다.
     private Key key;
@@ -63,8 +72,7 @@ public class JwtUtil {
         key = Keys.hmacShaKeyFor(bytes);
     }
 
-//2.JWT 생성
-
+    //2.JWT 생성
     // 토큰 생성
     public String createToken(String username, UserRoleEnum role) {
         Date date = new Date();
@@ -106,7 +114,7 @@ public class JwtUtil {
 
     //5.JWT 검증
     // 토큰 검증
-    public boolean validateToken(String token) {
+    public boolean validateToken(String token, HttpServletResponse response) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
@@ -115,12 +123,14 @@ public class JwtUtil {
             logger.error("Invalid JWT signature, 유효하지 않는 JWT 서명 입니다.");
         } catch (ExpiredJwtException e) {
             logger.error("Expired JWT token, 만료된 JWT token 입니다.");
+            removeTokenFromCookie(response);
         } catch (UnsupportedJwtException e) {
             logger.error("Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다.");
         } catch (IllegalArgumentException e) {
             logger.error("JWT claims is empty, 잘못된 JWT 토큰 입니다.");
         }
         return false;
+
     }
 
     //6.JWT에서 사용자 정보 가져오기
@@ -145,4 +155,29 @@ public class JwtUtil {
         }
         return null;
     }
+    public String resolveToken(HttpServletRequest request) {
+        String bearerToken= request.getHeader(AUTHORIZATION_HEADER);
+        if(StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)){
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
+    //쿠키에 있는 토큰 제거
+    public void removeTokenFromCookie(HttpServletResponse response) {
+        Cookie cookie = createExpiredCookie();
+        response.addCookie(cookie);
+    }
+
+    // 만료된 쿠키 생성
+    private Cookie createExpiredCookie() {
+        Cookie cookie = new Cookie(AUTHORIZATION_HEADER, null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        return cookie;
+    }
+    //블랙리스트에 추가
+    public void addTokenToBlacklist(String token) {
+        tokenBlacklist.add(token);
+    }
+
 }

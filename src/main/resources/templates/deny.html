@@ -3,8 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <title>차단 계정</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/3.0.1/js.cookie.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"
+            integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+
+    <style>
+        body {
+            font-family: 'Inconsolata', monospace;
+            margin: auto auto;
+            max-width: 1300px;
+            padding: 20px;
+            text-align: center;
+        }
+
+
+    </style>
 </head>
 <body>
 
+<img style="width: 100%;margin-top: 100px;" class="logo" src="/images/deny.png">
+
+<div style="font-size: 30px;color: #4e81c9">
+    <span id="countdown">5</span>초 뒤에 로그인 창으로 돌아갑니다...
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        // 토큰 삭제
+        Cookies.remove('Authorization', {path: '/'});
+    });
+
+    // 5초 동안 카운트 다운 함수
+    function countdown() {
+        var count = 5;
+        var countdownElement = document.getElementById("countdown");
+
+        var timer = setInterval(function () {
+            count--;
+            countdownElement.textContent = count;
+
+            if (count <= 0) {
+                clearInterval(timer);
+                window.location.href = "/api/logout"
+            }
+        }, 1000);
+    }
+
+    // 카운트 다운 시작
+    countdown();
+</script>
 </body>
 </html>

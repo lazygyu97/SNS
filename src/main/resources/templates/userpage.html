@@ -5,8 +5,12 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+
     <link rel="stylesheet" type="text/css" href="/css/style.css">
-    <title>CHECK SHIRTS - My page</title>
+    <title th:text="'Airygram::'+${profile.username}+'님의 페이지'">Title</title>
+    <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+
     <style>
         .profile-field {
             padding: 5px;
@@ -16,42 +20,189 @@
         .profile-field.editable {
             border: 1px solid gray;
         }
+
+        /* 전체 요소를 가운데 정렬 */
+        body {
+            font-family: 'Inconsolata', monospace;
+            margin: 0 auto;
+            max-width: 850px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* 인사말 스타일 */
+        .greeting {
+            color: #4e81c9;
+            margin-left: auto;
+        }
+
+        /* header 스타일 */
+        .header {
+            margin-top: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            margin-bottom: 70px;
+        }
+
+        .profile-container {
+            color: #4e81c9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .profile-image {
+            margin-left: 100px;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            object-fit: fill;
+        }
+
+        .profile-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-left: 20px;
+        }
+
+        .profile-info button {
+            border: 0px;
+            background: white;
+            color: #4e81c9;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .profile-info .profile-field {
+            margin-bottom: 10px;
+        }
+
+        /* 로고 이미지 스타일 */
+        .logo {
+            width: 400px;
+            height: auto;
+        }
+
+        .profile-field {
+            padding: 5px;
+            width: 300px;
+        }
+
+        .profile-field.editable {
+            border: 1px solid gray;
+        }
+
+        /* 글 리스트 스타일 */
+        .post-list {
+            align-items: center;
+            max-height: 650px;
+            overflow: scroll;
+            margin-top: 60px;
+            align-items: center;
+        }
+
+        .post-item {
+            font-size: 30px;
+            color: white;
+            border-radius: 20px;
+            background-color: #70a2e5;
+            padding: 20px;
+            margin-bottom: 30px;
+            width: 94%;
+            height: 180px;
+        }
+
+
+        /* 글쓰기 창 스타일 */
+        .post-form {
+            border-radius: 20px;
+            width: 98%;
+            height: 100px;
+            display: none;
+            margin-top: 100px;
+            background-color: #70a2e5;
+
+        }
+
+        .post-input-box {
+            width: 60%;
+            margin-top: 25px;
+            height: 50px;
+            border: none;
+            background-color: #ffffff;
+            border-radius: 10px;
+        }
+
+        .post-form button {
+            width: 150px; /* Adjust the width as per your preference */
+            height: 50px;
+            margin: 25px 0;
+            border: none;
+            border-radius: 10px;
+            background-color: #70a2e5;
+            color: white;
+            font-size: 25px;
+            cursor: pointer;
+        }
+
+        /* 각 포스트 내용 스타일 */
+        .post-content {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            margin-left: 50px;
+            margin-top: 10px;
+        }
+
+        /* 댓글 버튼 및 댓글 폼 스타일 */
+        .comment-section {
+            font-size: 20px;
+            width: 50%;
+            margin-right: 50px;
+            cursor: pointer;
+
+        }
+
+        .section {
+            display: flex;
+            justify-content: space-between;
+            height: 160px;
+        }
+        .comment-form {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .comment-form input[type="text"] {
+
+            border-radius: 10px;
+            border: 0px;
+            text-align: center;
+        }
+
+        .comment-form button {
+            border: 0px;
+            background: rgba(133, 159, 197, 0.31);
+            color: white;
+            width: 120px;
+            cursor: pointer;
+        }
+
+        /* 댓글 리스트 스타일 */
+        .comment-list {
+            text-align: right;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
     </style>
-    <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
     <script>
-
-        //thymeleaf 이용 view에 addAttribute로 해결.
-
-        //화면 접근 시 프로필 정보 불러오기
-        // window.onload = function () {
-        //     let url = window.location.href;
-        //     let username = url.split("/").pop();
-        //
-        //     fetch(`/api/userprofile/${username}`)
-        //         .then(function (response) {
-        //             if (response.ok) {
-        //                 return response.json();
-        //             } else {
-        //                 throw new Error("프로필 불러오기 실패");
-        //             }
-        //         })
-        //         .then(function (responseDto) {
-        //             let nickname = document.getElementById("nickname");
-        //             let username = document.getElementById("username");
-        //             let email = document.getElementById("email");
-        //             let oneLine = document.getElementById("oneLine");
-        //             nickname.textContent = responseDto.nickname;
-        //             email.textContent = responseDto.email;
-        //             username.textContent = responseDto.username;
-        //             if (responseDto.oneLine === null) {
-        //                 oneLine.textContent = "나의 한줄 소개를 입력해주세요."
-        //             } else {
-        //                 oneLine.textContent = responseDto.oneLine;
-        //             }
-        //             console.log(responseDto);
-        //         })
-        //
-        // }
 
         function startFollow() {
             let username = document.getElementById("username").textContent;
@@ -104,25 +255,27 @@
                     $('#follower-list').empty();
                     responseDto.forEach(function (follower) {
                         let username = follower.username;
-                        let email = follower.email;
                         let nickname = follower.nickname;
-                        let followingDateTime = follower.followingDateTime;
+                        let image = follower.image;
+                        if (!image){
+                            image="/images/user.png"
+                        }
+
                         let temp_html = `
-                                <a href="${username}" role="link"
-                                   tabindex="0"
-                                   style="height: 44px; width: 44px;"><img
-                                        alt="${username}님의 프로필 사진"
-                                        src="https://scontent-ssn1-1.cdninstagram.com/v/t51.2885-19/342230601_670501178168655_2562967830462618991_n.jpg?stp=dst-jpg_s150x150&amp;_nc_ht=scontent-ssn1-1.cdninstagram.com&amp;_nc_cat=103&amp;_nc_ohc=YaP78wU9pccAX_tPuAv&amp;edm=APQMUHMBAAAA&amp;ccb=7-5&amp;oh=00_AfDcHlGkCxrRhcxGI7a0O1Z0AhiuXxcCVAX1REL9r80N8A&amp;oe=64BF00A0&amp;_nc_sid=6ff7c8"></a>
-                                <a href="${username}" role="link"><span>${username}</span></a>
-                                <div>${nickname}</div>
-                                <div>${email}</div>
-                                <div>팔로우한 날짜 :<span>${followingDateTime}</span></div>
+                        <div>
+    <div style="align-content: flex-start">
+        <img style="width: 30px; height: 30px; border-radius: 50%" src="${image}" />
+    </div>
+    <span>${nickname}</span>
+
+</div>
                         `
                         $('#follower-list').append(temp_html);
                     });
                 });
         }
-
+        // <button id="unfollowButton" name="unfollow"
+        //     onclick="unFollow(this)" value="${username}">팔로우취소</button>
         function showFollowings() {
             let username = document.getElementById("username").textContent;
             fetch(`/api/followings/${username}`)
@@ -132,20 +285,19 @@
                 .then(function (responseDto) {
                     $('#following-list').empty();
                     responseDto.forEach(function (follower) {
-                        let username = follower.username;
-                        let email = follower.email;
                         let nickname = follower.nickname;
-                        let followingDateTime = follower.followingDateTime;
+                        let image = follower.image;
+                        if (!image){
+                            image="/images/user.png"
+                        }
                         let temp_html = `
-                                <a href="${username}" role="link"
-                                   tabindex="0"
-                                   style="height: 44px; width: 44px;"><img
-                                        alt="${username}님의 프로필 사진"
-                                        src="https://scontent-ssn1-1.cdninstagram.com/v/t51.2885-19/342230601_670501178168655_2562967830462618991_n.jpg?stp=dst-jpg_s150x150&amp;_nc_ht=scontent-ssn1-1.cdninstagram.com&amp;_nc_cat=103&amp;_nc_ohc=YaP78wU9pccAX_tPuAv&amp;edm=APQMUHMBAAAA&amp;ccb=7-5&amp;oh=00_AfDcHlGkCxrRhcxGI7a0O1Z0AhiuXxcCVAX1REL9r80N8A&amp;oe=64BF00A0&amp;_nc_sid=6ff7c8"></a>
-                                <a href="${username}" role="link"><span>${username}</span></a>
-                                <div>${nickname}</div>
-                                <div>${email}</div>
-                                <div>팔로우한 날짜 :<span>${followingDateTime}</span></div>
+                  <div>
+    <div style="align-content: flex-start">
+        <img style="width: 30px; height: 30px; border-radius: 50%" src="${image}" />
+
+    </div>
+    <span>${nickname}</span>
+</div>
                         `
                         $('#following-list').append(temp_html);
                     });
@@ -153,32 +305,150 @@
         }
 
     </script>
+
 </head>
 <body>
-<div id="mypage-form">
-    <div id="mypage-title">CHECK SHIRTS - 유저페이지</div>
-    <div><span id="username" name="username" th:text="${profile.username}"></span></div>
-    <div><span id="nickname" name="nickname" contenteditable="false" class="profile-field"
-               th:text="${profile.nickname}"></span></div>
-    <div><span id="email" name="email" contenteditable="false" class="profile-field" th:text="${profile.email}"></span>
-    </div>
-    <div id="oneLine" name="oneLine" contenteditable="false" class="profile-field"><span
-            th:text="${profile.oneLine}"></span></div>
-    <button id="followers" name="followers" onclick="showFollowers()">팔로워</button>
-    <button id="followings" name="followings" onclick="showFollowings()">팔로잉</button>
-    <button id="followButton" name="follow" onclick="startFollow()">팔로우하기</button>
-    <button id="unfollowButton" name="unfollow" onclick="unFollow()">팔로우취소</button>
-    <div id="message" name="message">DM</div>
-    <h1 dir="auto" tabindex="-1" style="width: calc(100% - 100px);">
-        <a onclick="showFollowers()">팔로워</a>
-    </h1>
-    <div id="follower-list">
-    </div>
-    <h1 dir="auto" tabindex="-1" style="width: calc(100% - 100px);">
-        <a onclick="showFollowings()">팔로잉</a>
-    </h1>
-    <div id="following-list">
-    </div>
+
+<div class="header">
+    <img class="logo" src="/images/logo.png" onclick="window.location.href='/'">
+
 </div>
+<div class="profile-container">
+    <img th:src="${profile.getImage()}" class="profile-image">
+    <div class="profile-info">
+        <div id="username" name="username" contenteditable="false" th:text="${profile.username}"></div>
+        <div id="nickname" name="nickname" contenteditable="false" class="profile-field"
+             th:text="${profile.nickname}"></div>
+        <div id="email" name="email" contenteditable="false" class="profile-field" th:text="${profile.email}"></div>
+        <div id="oneLine" name="oneLine" contenteditable="false" class="profile-field"
+             th:text="${profile.oneLine}"></div>
+        <button id="followButton" name="follow" onclick="startFollow()">팔로우하기</button>
+        <button id="unfollowButton" name="unfollow" onclick="unFollow()">팔로우취소</button>
+
+    </div>
+
+</div>
+<div style="margin-top: 20px; display: flex;justify-content: space-between">
+    <div style="width: 50%; display: flex;
+            flex-direction: column;text-align: center;">
+        <h1 dir="auto" tabindex="-1" style="width: calc(100% - 100px);">
+            <a onclick="showFollowers()">팔로워</a>
+        </h1>
+        <div id="follower-list">
+        </div>
+    </div>
+    <div style="width: 50%; display: flex;
+            flex-direction: column;text-align: center;">
+        <h1 dir="auto" tabindex="-1" style="width: calc(100% - 100px);">
+            <a onclick="showFollowings()">팔로잉</a>
+        </h1>
+        <div id="following-list">
+        </div>
+    </div>
+
+</div>
+<div>
+
+    <div id="post-form" class="post-form" style="display: none">
+        <input type="text" name="content" id="content" placeholder="글 작성" class="post-input-box">
+        <button onclick="submitForm()">post</button>
+    </div>
+
+    <div class="post-list">
+        <div th:each="postList, status : ${postList}" class="post-item"
+             th:classappend="${postList.getImageUrl() != null} ? 'has-image' : 'no-image'">
+
+            <div style="align-content: flex-start" th:if="${postList.getImageUrl() != null}">
+                <img style="object-fit: contain;width:400px;height:300px;border-radius: 50px" th:src="${postList.getImageUrl()}">
+            </div>
+
+            <div class="section">
+                <div class="post-content">
+                    <a th:href="'/api/userprofile/'+${postList.getUsername()}" style="text-decoration: none"><span
+                            th:text="${postList.getUsername()}" style="margin-bottom: 5px;"></span></a>
+                    <span style="margin-top: 10px" th:text="${postList.getContent()}"></span>
+                </div>
+                <div class="comment-section">
+                    <div>
+                        <ul style="list-style: none" class="comment-list" th:if="${postList.getComments().size() == 0}">
+                            <li>등록된 댓글이 없습니다.</li>
+                        </ul>
+                        <ul class="comment-list" th:unless="${#lists.isEmpty(postList.getComments())}">
+                            <div id="showComment" th:id="'showComment-' + ${postList.id}"
+                                 th:onclick="'showComment(' + ${postList.id} + ')'">댓글 보기
+                            </div>
+                            <div id="hideComment" th:id="'hideComment-' + ${postList.id}" style="display: none"
+                                 th:onclick="'hideComment(' + ${postList.id} + ')'">댓글 숨기기
+                            </div>
+
+                            <div th:id="'comment-' + ${postList.id}"
+                                 style="height:100px;display: none;overflow: scroll;">
+                                <li style="list-style: none; height: 20px; overflow: scroll "
+                                    th:each="comment : ${postList.comments}">
+                                    <span style="font-size: 15px" class="comment-body"
+                                          th:text="${comment.content}"></span>
+                                    <span style="font-size: 12px" class="comment-body"
+                                          th:text="${comment.username}"></span>
+                                </li>
+                            </div>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="comment-form">
+                <div style="margin-left: 160px;" >
+                    <form th:action="@{/api/comments}" method="post">
+                        <input type="hidden" name="postId" th:value="${postList.getId()}">
+                        <input class="comment-input" type="text" name="content" placeholder="댓글을 입력하세요"
+                               required>
+                        <button class="comment-submit" type="submit">댓글 등록</button>
+                    </form>
+                </div>
+
+                <div style="margin-right:60px " th:id="'like-' + ${postList.getId()}">
+                    <a th:text="${postList.getLikeCount()}"></a>
+                    <img th:onclick="'like(' + ${postList.getId()} + ')'" style="width: 20px;height: 20px" src="/images/like.png" value="">
+                    <img th:onclick="'report(' + ${postList.getId()} + ')'" style="width: 25px;height: 25px" src="/images/alarm.png" value="">
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('.post-item').each(function () {
+            const hasImage = $(this).hasClass('has-image');
+            if (hasImage) {
+                $(this).css('height', '500px'); // Set the height as per your requirement
+            } else {
+                $(this).css('height', '180px'); // Set the height as per your requirement
+            }
+        });
+    });
+    function like(id){
+        fetch(`/api/posts/${id}/like`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({})
+        })
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (responseDto) {
+
+                window.location.reload()
+
+            })
+            .catch(function (error) {
+                alert("좋아요 실패");
+            });
+    }
+</script>
 </body>
 </html>

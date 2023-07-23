@@ -7,96 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!--  jquery  -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script th:inline="javascript">
-        window.onload = function () {
 
-            var postCountList = [[${dailyPostCountList}]];
-            var userCountList = [[${dailyUserCountList}]];
-            // 그래프 데이터와 설정
-            var data_1 = {
-                labels: postCountList.map(item => item.date),
-                datasets: [{
-                    label: '신규 게시글 수',
-                    data: postCountList.map(item => item.postCount),
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                }]
-            };            // 그래프 데이터와 설정
-            var data_2 = {
-                labels: userCountList.map(item => item.date),
-                datasets: [{
-                    label: '신규 사용자 수',
-                    data: userCountList.map(item => item.postCount),
-                    backgroundColor: 'rgba(75,192,91,0.2)',
-                    borderColor: 'rgb(87,192,75)',
-                    borderWidth: 1
-                }]
-            };
-
-
-            var options = {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            };
-            // 그래프 생성
-            var ctx_1 = document.getElementById('postChart').getContext('2d');
-            var ctx_2 = document.getElementById('userChart').getContext('2d');
-
-            var postChart = new Chart(ctx_1, {
-                type: 'bar', data: data_1, options: options
-            });
-            var userChart = new Chart(ctx_2, {
-                type: 'bar', data: data_2, options: options
-            });
-        }
-
-        function viewUsers() {
-            $('#view-posts').hide();
-            $('#view-users').show();
-        }
-
-        function viewPosts() {
-            $('#view-posts').show();
-            $('#view-users').hide();
-        }
-
-
-        function filterUsers() {
-            var keyword = document.getElementById("user-keyword").value.toLowerCase();
-            var userListItems = document.querySelectorAll("#user-list-container li");
-
-            userListItems.forEach(function (item) {
-                var username = item.querySelector(".username").textContent.toLowerCase();
-                var role = item.querySelector(".role").textContent.toLowerCase();
-
-                if (username.includes(keyword) || role.includes(keyword)) {
-                    item.style.display = "block";
-                } else {
-                    item.style.display = "none";
-                }
-            });
-        }
-        function filterPosts() {
-            var keyword = document.getElementById("post-keyword").value.toLowerCase();
-            var postListItems = document.querySelectorAll("#post-list-container li");
-
-            postListItems.forEach(function (item) {
-                var username = item.querySelector(".username").textContent.toLowerCase();
-                var content = item.querySelector(".content").textContent.toLowerCase();
-
-                if (username.includes(keyword) || content.includes(keyword)) {
-                    item.style.display = "block";
-                } else {
-                    item.style.display = "none";
-                }
-            });
-        }
-
-    </script>
 
     <style>
         .header{
@@ -108,14 +19,14 @@
         .graph-container {
 
             margin-bottom: 30px;
-            width: 45%; /* 요소 크기를 조절하여 좌우 여백을 늘립니다. */
+            width: 48%; /* 요소 크기를 조절하여 좌우 여백을 늘립니다. */
             display: inline-block; /* 요소를 가로로 나란히 배치합니다. */
         }
 
         /* 전체 요소를 가운데 정렬 */
         body {
             margin: 0 auto;
-            max-width: 900px;
+            max-width: 1000px;
             padding: 20px;
             text-align: center;
         }
@@ -156,38 +67,235 @@
 
 <div style="background: antiquewhite; margin: 20px;">
     신고된 글 리스트
+    <div class="post-list">
+        <div th:each="postList, status : ${report}" class="post-item" style="margin-top: 15px"
+             th:classappend="${postList.getImageUrl() != null} ? 'has-image' : 'no-image'">
+
+            <div style="align-content: flex-start" th:if="${postList.getImageUrl() != null}">
+                <img style="object-fit: contain;width:400px;height:300px" th:src="${postList.getImageUrl()}">
+            </div>
+
+            <div class="section">
+                <div class="post-content">
+                    <a th:href="'api/userprofile/'+${postList.getUsername()}" style="text-decoration: none"><span
+                            th:text="${postList.getUsername()}" style="margin-bottom: 5px;"></span></a>
+                    <span style="margin-top: 10px" th:text="${postList.getContent()}"></span>
+
+                    <button th:onclick="'deleteReport(' + ${postList.getId()} + ')'">삭제</button>
+                    <button th:onclick="'cancelReport(' + ${postList.getId()} + ')'">해제</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
 </div>
 
-<div>
-    <button onclick="viewUsers()">전체 사용자 관리</button>
-    <button onclick="viewPosts()">전체 게시글 관리</button>
+<div style="display: flex;justify-content: space-between; ">
+    <button style="border: 0px;width: 45%" onclick="viewUsers()">전체 사용자 관리</button>
+    <button style="border: 0px;width: 45%" onclick="viewPosts()">전체 게시글 관리</button>
 </div>
 
 <div id="view-users" style="display: none">
-    <input type="text" id="user-keyword" placeholder="username을 입력해주세요">
+    <input style="text-align:center;margin-top: 20px;margin-bottom:20px;width: 400px" type="text" id="user-keyword" placeholder="username을 입력해주세요">
     <button onclick="filterUsers()">검색</button>
     <div class="scrollable-list">
         <ul id="user-list-container">
-            <li th:each="list : ${userList}">
+            <li style="margin-bottom: 10px" th:each="list : ${userList}">
                 <span class="username" th:text="${list.getUsername()}"></span>
                 <span class="role" th:text="${list.getRole()}"></span>
+                <button th:onclick="'denyUser(' + ${list.getId()} + ')'">차단</button>
+                <button th:onclick="'denyCancelUser(' + ${list.getId()} + ')'">해제</button>
+
             </li>
         </ul>
     </div>
 </div>
 
 <div id="view-posts" style="display: none">
-    <input type="text" id="post-keyword" placeholder="키워드를 입력해주세요">
+    <input  style="text-align:center;margin-top: 20px;margin-bottom:20px;width: 400px"  type="text" id="post-keyword" placeholder="키워드를 입력해주세요">
     <button onclick="filterPosts()">검색</button>
     <div class="scrollable-list">
         <ul id="post-list-container">
-            <li th:each="list : ${postList}">
+            <li style="margin-bottom: 10px" th:each="list : ${postList}">
                 <span class="content" th:text="${list.getContent()}"></span>
                 <span class="username" th:text="${list.getUsername()}"></span>
+                <button th:onclick="'deleteReport(' + ${list.getId()} + ')'">삭제</button>
             </li>
         </ul>
     </div>
 </div>
+<script th:inline="javascript">
+    window.onload = function () {
 
+        var postCountList = [[${dailyPostCountList}]];
+        var userCountList = [[${dailyUserCountList}]];
+        // 그래프 데이터와 설정
+        var data_1 = {
+            labels: postCountList.map(item => item.date),
+            datasets: [{
+                label: '신규 게시글 수',
+                data: postCountList.map(item => item.postCount),
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        };            // 그래프 데이터와 설정
+        var data_2 = {
+            labels: userCountList.map(item => item.date),
+            datasets: [{
+                label: '신규 사용자 수',
+                data: userCountList.map(item => item.postCount),
+                backgroundColor: 'rgba(75,192,91,0.2)',
+                borderColor: 'rgb(87,192,75)',
+                borderWidth: 1
+            }]
+        };
+
+
+        var options = {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        };
+        // 그래프 생성
+        var ctx_1 = document.getElementById('postChart').getContext('2d');
+        var ctx_2 = document.getElementById('userChart').getContext('2d');
+
+        var postChart = new Chart(ctx_1, {
+            type: 'bar', data: data_1, options: options
+        });
+        var userChart = new Chart(ctx_2, {
+            type: 'bar', data: data_2, options: options
+        });
+    }
+
+    function viewUsers() {
+        $('#view-posts').hide();
+        $('#view-users').show();
+    }
+
+    function viewPosts() {
+        $('#view-posts').show();
+        $('#view-users').hide();
+    }
+
+
+    function filterUsers() {
+        var keyword = document.getElementById("user-keyword").value.toLowerCase();
+        var userListItems = document.querySelectorAll("#user-list-container li");
+
+        userListItems.forEach(function (item) {
+            var username = item.querySelector(".username").textContent.toLowerCase();
+            var role = item.querySelector(".role").textContent.toLowerCase();
+
+            if (username.includes(keyword) || role.includes(keyword)) {
+                item.style.display = "block";
+            } else {
+                item.style.display = "none";
+            }
+        });
+    }
+    function filterPosts() {
+        var keyword = document.getElementById("post-keyword").value.toLowerCase();
+        var postListItems = document.querySelectorAll("#post-list-container li");
+
+        postListItems.forEach(function (item) {
+            var username = item.querySelector(".username").textContent.toLowerCase();
+            var content = item.querySelector(".content").textContent.toLowerCase();
+
+            if (username.includes(keyword) || content.includes(keyword)) {
+                item.style.display = "block";
+            } else {
+                item.style.display = "none";
+            }
+        });
+    }
+
+    function cancelReport(id){
+        alert("신고를 해제하시겠습니까?")
+        fetch(`/api/posts/report/${id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({})
+        })
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (responseDto) {
+                alert("신고 해제 성공");
+                window.location.href = "/"
+
+            })
+            .catch(function (error) {
+                alert("신고 해제 실패");
+            });
+    }
+    function deleteReport(id){
+        alert("정말로 삭제하시겠습니까?")
+        fetch(`/api/posts/${id}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({})
+        })
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (responseDto) {
+                alert("삭제 성공");
+                window.location.href = "/"
+
+            })
+            .catch(function (error) {
+                alert("삭제 실패");
+            });
+    }
+    function denyUser(id){
+        fetch(`/api/user/deny/${id}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({})
+        })
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (responseDto) {
+                alert("차단 성공");
+                window.location.href = "/"
+
+            })
+            .catch(function (error) {
+                alert("차단 실패");
+            });
+    }
+    function denyCancelUser(id){
+        fetch(`/api/user/deny/${id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({})
+        })
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (responseDto) {
+                alert("차단 해제 성공");
+                window.location.href = "/"
+
+            })
+            .catch(function (error) {
+                alert("차단 해제 실패");
+            });
+    }
+
+</script>
 </body>
 </html>

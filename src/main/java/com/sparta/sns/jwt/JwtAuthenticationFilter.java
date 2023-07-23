@@ -19,9 +19,11 @@ import java.io.IOException;
 @Slf4j(topic = "로그인 및 JWT 생성")
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final JwtUtil jwtUtil;
+    private final String denyPageUrl; // DENY일 때 리다이렉션할 페이지 URL
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, String denyPageUrl) {
         this.jwtUtil = jwtUtil;
+        this.denyPageUrl = denyPageUrl;
         setFilterProcessesUrl("/api/user/login");
     }
 
@@ -43,6 +45,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             throw new RuntimeException(e.getMessage());
         }
     }
+
     //@exceptionHandler
 //customExceptionHandler (runtime exception)
     @Override
@@ -50,11 +53,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         log.info("로그인 성공 및 JWT 생성");
         String username = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
         UserRoleEnum role = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getRole();
-        if(role.equals(UserRoleEnum.DENY)){
-            
-        }
         String token = jwtUtil.createToken(username, role);
         jwtUtil.addJwtToCookie(token, response);
+
     }
 
     @Override

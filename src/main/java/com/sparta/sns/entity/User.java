@@ -36,6 +36,9 @@ public class User extends TimeStamped {
     @Column
     private String oneLine;
 
+    @Column
+    private String image;
+
     private Long kakaoId;
 
 
@@ -71,7 +74,15 @@ public class User extends TimeStamped {
         this.oneLine = requestDto.getOneLine();
     }
 
+    public void deny(){
+        this.role=UserRoleEnum.DENY;
+    }
+    public void denyCancel() {
+        this.role=UserRoleEnum.USER;
+    }
     public void modifyPassword(String newPassword) {
         this.password = newPassword;
     }
+
+
 }

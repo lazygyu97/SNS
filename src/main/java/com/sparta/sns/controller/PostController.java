@@ -1,11 +1,15 @@
 package com.sparta.sns.controller;
 
+import com.sparta.sns.dto.ApiResponseDto;
 import com.sparta.sns.dto.PostRequestDto;
 import com.sparta.sns.dto.PostResponseDto;
-import com.sparta.sns.dto.ProfileRequestDto;
 import com.sparta.sns.security.UserDetailsImpl;
 import com.sparta.sns.service.PostService;
+import com.sun.jdi.request.DuplicateRequestException;
 import io.jsonwebtoken.JwtException;
+import jakarta.annotation.Nullable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -24,30 +28,33 @@ public class PostController {
 
     // 게시글 작성 - 로그인, 이미지, 작성 내용 필요
     @PostMapping("/posts")
-    public String createPost(@RequestPart (value = "content") String content,
-                             @RequestPart(value = "file") MultipartFile image,
-                             @AuthenticationPrincipal UserDetailsImpl userDetails){
+    public String createPost(@RequestPart(value = "content") String content,
+                             @Nullable @RequestPart(value = "file") MultipartFile image,
+                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         // 토큰 검사
         checkToken(userDetails);
-
         PostRequestDto requestDto = new PostRequestDto(content);
 
-        postService.createPost(requestDto,image,userDetails.getUser());
+        if (image == null) {
+            System.out.println("이미지 없음~~~~~~~~~~~~~~~~~₩");
+            postService.createPost_2(requestDto, userDetails.getUser());
+            return "redirect:/";
+        }
+
+        postService.createPost(requestDto, image, userDetails.getUser());
         return "redirect:/";
     }
 
     // 게시글 조회 (목록 전체)
     @ResponseBody
     @GetMapping("/all-posts")
-    public List<PostResponseDto> getAllPosts(){
-
-        System.out.println("controller");
+    public List<PostResponseDto> getAllPosts() {
         return postService.getAllPosts();
     }
 
     // 게시글 조회 (팔로잉 목록) > 팔로잉 구현 이후 구현!/ 게시글 수정
     @PutMapping("/posts/{postid}")
-    public String updatePost(@PathVariable Long id, @RequestBody PostRequestDto requestDto,  @AuthenticationPrincipal UserDetailsImpl userDetails){
+    public String updatePost(@PathVariable Long id, @RequestBody PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         // 토큰 검사
 
         System.out.println("controller");
@@ -56,29 +63,50 @@ public class PostController {
     }
 
     // 게시글 삭제
-    @DeleteMapping("/posts/{postid}")
-    public String deletePost(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
+    @DeleteMapping("/posts/{id}")
+    public ResponseEntity<ApiResponseDto> deletePost(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         // 토큰 검사
 
         System.out.println("controller");
         checkToken(userDetails);
-        return postService.deletePost(id, userDetails.getUser());
+        postService.deletePost(id, userDetails.getUser());
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponseDto("삭제 성공"));
     }
 
     // 게시글 신고
-    @DeleteMapping("/posts/report/{postid}")
-    public String reportPost(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
+    @DeleteMapping("/posts/report/{id}")
+    public ResponseEntity<ApiResponseDto> reportPost(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         // 토큰 검사
-
-        System.out.println("controller");
         checkToken(userDetails);
-        return postService.reportPost(id);
+        postService.reportPost(id);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponseDto("신고 성공"));
     }
+    // 게시글 신고
+    @PutMapping("/posts/report/{id}")
+    public ResponseEntity<ApiResponseDto> reportCancelPost(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        // 토큰 검사
+        checkToken(userDetails);
+        postService.reportCancelPost(id);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponseDto("신고 해제 성공"));
+    }
+
+    //7. 글 좋아요 기능
+    @PostMapping("/posts/{id}/like")
+    public ResponseEntity<ApiResponseDto> likePost(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long id) {
+        try {
+            postService.likePost(id, userDetails.getUser());
+        } catch (DuplicateRequestException e) {
+            return ResponseEntity.badRequest().body(new ApiResponseDto(e.getMessage()));
+        }
+
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponseDto("게시글 좋아요 성공"));
+    }
+
 
 
     // 로그인 토큰 검증
     public void checkToken(UserDetailsImpl userDetails) throws JwtException {
-        if(userDetails == null)
+        if (userDetails == null)
             throw new IllegalArgumentException("토큰이 유효하지 않습니다");
     }
 }
