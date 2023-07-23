@@ -147,9 +147,10 @@ public class PostService {
         //팔로잉 유저가 작성한 게시글들을 찾아 저장
         for(Follow followInfo : followInfos){
             List<Post> posts = postRepository.findByUser(followInfo.getFollowingUser());
+//            List<Post> posts = postRepository.findByUserAndReport_flag(followInfo.getFollowingUser(),false);
             followingUsersPosts.addAll(posts);
         }
-        //생성 날짜 순으로 정렬
+        //최신 날짜 순으로 정렬
         Collections.sort(followingUsersPosts,new PostComparator());
 
         // 타입변경 stream.map 이용하여 변환 후 반환하기
