@@ -13,16 +13,18 @@ import lombok.Setter;
 @NoArgsConstructor
 
 public class ProfileResponseDto {
+
 	private String nickname;
 	private String username;
 	private String email;
-
+	private String image;
 	private String oneLine;
 
 	public ProfileResponseDto(User user) {
 		this.nickname =user.getNickname();
 		this.username = user.getUsername();
 		this.email = user.getEmail();
+		this.image = user.getImage();
 		this.oneLine = user.getOneLine();
 	}
 }

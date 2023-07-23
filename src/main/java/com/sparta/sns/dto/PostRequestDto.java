@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Getter
 @Setter
 public class PostRequestDto {
+
     private String content;
     private String imageUrl;
 

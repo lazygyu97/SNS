@@ -2,16 +2,20 @@ package com.sparta.sns.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sparta.sns.dto.*;
+import com.sparta.sns.entity.UserRoleEnum;
 import com.sparta.sns.jwt.JwtUtil;
+import com.sparta.sns.security.UserDetailsImpl;
 import com.sparta.sns.service.KakaoService;
 import com.sparta.sns.service.UserService;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -31,6 +35,7 @@ public class UserController {
     //의존성 주입
     private final UserService userService;
     private final KakaoService kakaoService;
+    private final JwtUtil jwtUtil;
 
     //예외처리 메서드
     //컨트롤러 내 API가 호출되다가 Exception 발생 시, 코드 실행
@@ -98,5 +103,45 @@ public class UserController {
 
         return "redirect:/";
     }
+
+    // 3. 로그아웃 기능 : 구현해보고 싶어서 하긴했는데 확인이 필요함.
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponseDto> logout(HttpServletRequest request, HttpServletResponse response) {
+        // 현재 사용자의 토큰을 가져오기
+        String token = jwtUtil.resolveToken(request);
+        log.info(token);
+        if (token == null) {
+            throw new IllegalArgumentException("로그인 상태가 아닙니다.");
+        }
+        // 토큰을 블랙리스트에 추가하여 만료시키기
+        jwtUtil.addTokenToBlacklist(token);
+        // 쿠키에서 토큰 제거
+        jwtUtil.removeTokenFromCookie(response);
+
+        return ResponseEntity.ok(new ApiResponseDto("로그아웃 되었습니다."));
+    }
+
+    //회원 차단
+    @DeleteMapping("/user/deny/{id}")
+    public ResponseEntity<ApiResponseDto> denyUser(@PathVariable Long id,@AuthenticationPrincipal UserDetailsImpl userDetails){
+        if (!(userDetails.getUser().getRole() == UserRoleEnum.ADMIN)){
+            throw new IllegalArgumentException("관리자만 사용가능한 기능입니다.");
+        }
+        userService.denyUser(id);
+
+        return ResponseEntity.ok(new ApiResponseDto("회원 차단 성공"));
+    }
+    //회원 차단 해제
+    @PutMapping("/user/deny/{id}")
+    public ResponseEntity<ApiResponseDto> denyCancelUser(@PathVariable Long id,@AuthenticationPrincipal UserDetailsImpl userDetails){
+        if (!(userDetails.getUser().getRole() == UserRoleEnum.ADMIN)){
+            throw new IllegalArgumentException("관리자만 사용가능한 기능입니다.");
+        }
+        userService.denyCancelUser(id);
+
+        return ResponseEntity.ok(new ApiResponseDto("회원 차단 해제 성공"));
+    }
+
+
 
 }

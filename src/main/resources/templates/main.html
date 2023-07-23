@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inconsolata&display=swap">
     <!--  파비콘-->
     <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <!-- cookie js-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/3.0.1/js.cookie.min.js"></script>
 
     <style>
 
@@ -49,30 +51,54 @@
             cursor: pointer;
         }
 
+
         /* 인사말 스타일 */
         .greeting {
             color: #4e81c9;
             margin-left: auto;
         }
 
+        .select{
+            margin-bottom: 15px;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+        }
+        .select button{
+            margin-left: auto;
+            margin-right: auto;
+            width: 45%;
+            border: 0px;
+            background-color: rgba(78, 129, 201, 0.15);
+            font-size: 20px;
+            color: #4e81c9;
+        }
         /* 글 리스트 스타일 */
-        .post-list {
-            align-items: center;
-            max-height: 1000px;
+        .post-list1 {
+            align-content: center;
+            max-height: 1300px;
             overflow: scroll;
-            margin-top: 60px;
-            align-items: center;
+            margin-top: 20px;
+        }
+        /* 글 리스트 스타일 */
+        .post-list2 {
+            align-content: center;
+            max-height: 1300px;
+            overflow: scroll;
+            margin-top: 20px;
+            display: none;
         }
 
         .post-item {
-
+            margin-right: auto;
+            margin-left: auto;
             font-size: 30px;
             color: white;
             border-radius: 20px;
             background-color: #70a2e5;
             padding: 20px;
             margin-bottom: 30px;
-            width: 94%;
+            width: 75%;
             height: 180px;
 
         }
@@ -80,23 +106,24 @@
         .section {
             display: flex;
             justify-content: space-between;
-            height: 80%;
+            height: 160px;
         }
 
 
         /* 글쓰기 창 스타일 */
         .post-form {
             border-radius: 20px;
-            width: 98%;
+            width: 100%;
             height: 100px;
             display: none;
             margin-top: 40px;
             background-color: #70a2e5;
+            margin-bottom: 50px;
 
         }
 
         .post-input-box {
-            width: 60%;
+            width: 50%;
             margin-top: 25px;
             height: 50px;
             border: none;
@@ -105,7 +132,7 @@
         }
 
         .post-form button {
-            width: 150px; /* Adjust the width as per your preference */
+            width: 50px; /* Adjust the width as per your preference */
             height: 50px;
             margin: 25px 0;
             border: none;
@@ -124,6 +151,7 @@
             text-align: left;
             margin-left: 50px;
             margin-top: 10px;
+            overflow: scroll;
         }
 
         /* 댓글 버튼 및 댓글 폼 스타일 */
@@ -137,13 +165,19 @@
 
         .comment-form {
             display: flex;
-            flex-direction: row;
             align-items: center;
+            justify-content: space-between;
         }
 
+        /*.comment-form {*/
+        /*    width: 100%;*/
+        /*    display: flex;*/
+        /*    flex-direction: row;*/
+        /*    align-items: center;*/
+        /*}*/
+
         .comment-form input[type="text"] {
-            width: 50%;
-            margin-left: 150px;
+
             border-radius: 10px;
             border: 0px;
             text-align: center;
@@ -162,6 +196,17 @@
             text-align: right;
             margin-top: 10px;
             margin-bottom: 20px;
+            overflow-y: hidden; /* Hide the vertical scrollbar */
+
+        }
+
+        .comment-list div {
+            /* Optional: If you want to hide the horizontal scrollbar as well */
+            overflow-x: hidden;
+        }
+
+        .post-image img:not([src]) {
+            display: none;
         }
     </style>
 </head>
@@ -175,94 +220,210 @@
     </div>
 
     <div class="greeting" onclick="window.location.href='/api/mypage'">
-        <span th:text="${nickname}"></span>님 안녕하세요
+        <span style="cursor: pointer" th:text="${nickname}"></span>님 안녕하세요
+    </div>
+    <br>
+
+    <div>
+        <button style="display:block;border: 0px;background: rgba(255,255,255,0);color: #4e81c9" id="login-id-btn"
+                onclick="location.href='/api/logout'">로그아웃
+        </button>
     </div>
 
 </div>
-
-
 <div id="post-form" class="post-form" style="display: none">
     <input type="text" name="content" id="content" placeholder="글 작성" class="post-input-box">
-    <input type="file" id = "imagefile" accept="image/*" />
-    <button id = "post-btn">post</button>
+    <input type="file" id="imagefile" accept="image/*"/>
+    <button id="post-btn">post</button>
 </div>
+<div style="margin-top: 50px">
+    <div class="select">
+        <button onclick="showAllPost()">전체 게시글</button>
+        <button onclick="showFollowPost()">팔로우 게시글</button>
+    </div>
+    <div class="post-list1">
 
-<div class="post-list">
-    <div th:each="postList, status : ${postList}" class="post-item">
-        <div class="section">
-            <div class="post-content">
-                <a th:href="'api/userprofile/'+${postList.getUsername()}" style="text-decoration: none" ><span th:text="${postList.getUsername()}" style="margin-bottom: 5px;"></span></a>
-                <span style="margin-top: 10px" th:text="${postList.getContent()}"></span>
+        <div th:each="postList, status : ${postList1}" class="post-item"
+             th:classappend="${postList.getImageUrl() != null} ? 'has-image' : 'no-image'">
+
+            <div style="align-content: flex-start" th:if="${postList.getImageUrl() != null}">
+                <img style="object-fit: contain;width:400px;height:300px;border-radius: 50px"
+                     th:src="${postList.getImageUrl()}">
             </div>
-            <div class="comment-section">
-                <div>
-                    <ul style="list-style: none"class="comment-list" th:if="${postList.getComments().size() == 0}">
-                        <li>등록된 댓글이 없습니다.</li>
-                    </ul>
-                    <ul class="comment-list" th:unless="${#lists.isEmpty(postList.getComments())}">
-                        <div id="showComment" th:id="'showComment-' + ${postList.id}"
-                             th:onclick="'showComment(' + ${postList.id} + ')'">댓글 보기
-                        </div>
-                        <div id="hideComment" th:id="'hideComment-' + ${postList.id}" style="display: none"
-                             th:onclick="'hideComment(' + ${postList.id} + ')'">댓글 숨기기
-                        </div>
 
-                        <div  th:id="'comment-' + ${postList.id}" style="height:100px;display: none;overflow: scroll;">
-                            <li  style="list-style: none; height: 20px; overflow: scroll " th:each="comment : ${postList.comments}">
-                                <span style="font-size: 15px"class="comment-body" th:text="${comment.content}"></span>
-                                <span style="font-size: 12px" class="comment-body" th:text="${comment.username}"></span>
-                            </li>
-                        </div>
+            <div class="section">
+                <div class="post-content">
+                    <a th:href="'/api/userprofile/'+${postList.getUsername()}" style="font-size: 20px;text-decoration: none"><span
+                            th:text="${postList.getUsername()}" style="margin-bottom: 5px;"></span></a>
+                    <span style="font-size: 15px;margin-top: 10px" th:text="${postList.getContent()}"></span>
+                </div>
+                <div class="comment-section">
+                    <div>
+                        <ul style="list-style: none" class="comment-list" th:if="${postList.getComments().size() == 0}">
+                            <li>등록된 댓글이 없습니다.</li>
+                        </ul>
+                        <ul class="comment-list" th:unless="${#lists.isEmpty(postList.getComments())}">
+                            <div id="showComment" th:id="'showComment-' + ${postList.id}"
+                                 th:onclick="'showComment(' + ${postList.id} + ')'">댓글 보기
+                            </div>
+                            <div id="hideComment" th:id="'hideComment-' + ${postList.id}" style="display: none"
+                                 th:onclick="'hideComment(' + ${postList.id} + ')'">댓글 숨기기
+                            </div>
 
-                    </ul>
+                            <div th:id="'comment-' + ${postList.id}" style="height:100px;display: none;overflow: scroll;">
+                                <li style="list-style: none; height: 20px; overflow: scroll "
+                                    th:each="comment : ${postList.comments}">
+                                    <span style="font-size: 15px" class="comment-body" th:text="${comment.content}"></span>
+                                    <span style="font-size: 12px" class="comment-body" th:text="${comment.username}"></span>
+                                </li>
+                            </div>
+
+
+                        </ul>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="comment-form">
+                <div style="margin-left: 200px;">
+                    <form th:action="@{/api/comments}" method="post">
+                        <input type="hidden" name="postId" th:value="${postList.getId()}">
+                        <input class="comment-input" type="text" name="content" placeholder="댓글을 입력하세요"
+                               required>
+                        <button class="comment-submit" type="submit">댓글 등록</button>
+                    </form>
+                </div>
+
+                <div style="margin-right:60px " th:id="'like-' + ${postList.getId()}">
+                    <a th:text="${postList.getLikeCount()}"></a>
+                    <img th:onclick="'like(' + ${postList.getId()} + ')'" style="width: 20px;height: 20px"
+                         src="/images/like.png" value="">
+                    <img th:onclick="'report(' + ${postList.getId()} + ')'" style="width: 25px;height: 25px"
+                         src="/images/alarm.png" value="">
                 </div>
             </div>
+
+
         </div>
-
-
-        <form th:action="@{/api/comments}" method="post" class="comment-form">
-            <input type="hidden" name="postId" th:value="${postList.getId()}">
-            <input class="comment-input" type="text" name="content" placeholder="댓글을 입력하세요"
-                   required>
-            <button class="comment-submit" type="submit">댓글 등록</button>
-        </form>
-
-
     </div>
+    <div class="post-list2">
+
+        <div th:each="postList, status : ${postList2}" class="post-item"
+             th:classappend="${postList.getImageUrl() != null} ? 'has-image' : 'no-image'">
+
+            <div style="align-content: flex-start" th:if="${postList.getImageUrl() != null}">
+                <img style="object-fit: contain;width:400px;height:300px;border-radius: 50px"
+                     th:src="${postList.getImageUrl()}">
+            </div>
+
+            <div class="section">
+                <div class="post-content">
+                    <a th:href="'/api/userprofile/'+${postList.getUsername()}" style="font-size: 20px;text-decoration: none"><span
+                            th:text="${postList.getUsername()}" style="margin-bottom: 5px;"></span></a>
+                    <span style="font-size: 15px;margin-top: 10px" th:text="${postList.getContent()}"></span>
+                </div>
+                <div class="comment-section">
+                    <div>
+                        <ul style="list-style: none" class="comment-list" th:if="${postList.getComments().size() == 0}">
+                            <li>등록된 댓글이 없습니다.</li>
+                        </ul>
+                        <ul class="comment-list" th:unless="${#lists.isEmpty(postList.getComments())}">
+                            <div id="showComment2" th:id="'showComment2-' + ${postList.id}"
+                                 th:onclick="'showComment2(' + ${postList.id} + ')'">댓글 보기
+                            </div>
+                            <div id="hideComment2" th:id="'hideComment2-' + ${postList.id}" style="display: none"
+                                 th:onclick="'hideComment2(' + ${postList.id} + ')'">댓글 숨기기
+                            </div>
+
+                            <div th:id="'comment2-' + ${postList.id}" style="height:100px;display: none;overflow: scroll;">
+                                <li style="list-style: none; height: 20px; overflow: scroll "
+                                    th:each="comment : ${postList.comments}">
+                                    <span style="font-size: 15px" class="comment-body" th:text="${comment.content}"></span>
+                                    <span style="font-size: 12px" class="comment-body" th:text="${comment.username}"></span>
+                                </li>
+                            </div>
+
+
+                        </ul>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="comment-form">
+                <div style="margin-left: 200px;">
+                    <form th:action="@{/api/comments}" method="post">
+                        <input type="hidden" name="postId" th:value="${postList.getId()}">
+                        <input class="comment-input" type="text" name="content" placeholder="댓글을 입력하세요"
+                               required>
+                        <button class="comment-submit" type="submit">댓글 등록</button>
+                    </form>
+                </div>
+
+                <div style="margin-right:60px " th:id="'like-' + ${postList.getId()}">
+                    <a th:text="${postList.getLikeCount()}"></a>
+                    <img th:onclick="'like(' + ${postList.getId()} + ')'" style="width: 20px;height: 20px"
+                         src="/images/like.png" value="">
+                    <img th:onclick="'report(' + ${postList.getId()} + ')'" style="width: 25px;height: 25px"
+                         src="/images/alarm.png" value="">
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
 </div>
 
 <script>
+    $(document).ready(function () {
+        $('.post-item').each(function () {
+            const hasImage = $(this).hasClass('has-image');
+            if (hasImage) {
+                $(this).css('height', '500px'); // Set the height as per your requirement
+            } else {
+                $(this).css('height', '180px'); // Set the height as per your requirement
+            }
+        });
+    });
+
+
     // POST 요청 처리
-    $('#post-btn').on('click', function(event) {
+    $('#post-btn').on('click', function (event) {
         event.preventDefault(); // 기본 동작 중단
 
         const inputData = $('#content').val(); // 입력 데이터 가져오기
         const image = document.getElementById('imagefile').files[0]; // 입력 사진 가져오기
 
         let formData = new FormData();
-        formData.append("content",inputData);
-        formData.append("file",image);
+        formData.append("content", inputData);
+        formData.append("file", image);
 
         $.ajax({
             type: 'POST',
             url: '/api/posts',
             // data: JSON.stringify({ data: inputData }),
             // contentType: 'application/json',
-            data : formData,
+            data: formData,
             processData: false,
             contentType: false,
             enctype: 'multipart/form-data', // 이미지 업로드를 위해 추가
-            success: function(response) {
+            success: function (response) {
                 console.log('POST 요청 성공:', response);
+                window.location.href = "/"
                 // 여기에서 POST 요청에 대한 응답 처리
             },
-            error: function(jqXHR, textStatus, errorThrown) {
+            error: function (jqXHR, textStatus, errorThrown) {
                 console.error('POST 요청 실패:', errorThrown);
                 // 여기에서 POST 요청 실패 처리
             }
         });
 
-        alert(data['게시글 작성 완료!']);
         $('#input-post').val(''); // 작성 완료 시 내용 비우기
     });
 
@@ -279,6 +440,7 @@
         }
         return auth;
     }
+
     function showForm() {
         $('#post-form').show();
         $('#hideForm').show();
@@ -291,6 +453,14 @@
         $('#hideForm').hide();
         $('#showForm').show();
 
+    }
+    function showAllPost() {
+        $('.post-list1').show();
+        $('.post-list2').hide();
+    }
+    function showFollowPost() {
+        $('.post-list1').hide();
+        $('.post-list2').show();
     }
 
     function showComment(postId) {
@@ -316,6 +486,79 @@
             hideBtn.style.display = "none";
         }
     }
+    function showComment2(postId) {
+        var commentDiv = document.getElementById("comment2-" + postId);
+        var showBtn = document.getElementById("showComment2-" + postId);
+        var hideBtn = document.getElementById("hideComment2-" + postId);
+
+        if (commentDiv && showBtn && hideBtn) {
+            commentDiv.style.display = "block";
+            showBtn.style.display = "none";
+            hideBtn.style.display = "inline";
+        }
+    }
+
+    function hideComment2(postId) {
+        var commentDiv = document.getElementById("comment2-" + postId);
+        var showBtn = document.getElementById("showComment2-" + postId);
+        var hideBtn = document.getElementById("hideComment2-" + postId);
+
+        if (commentDiv && showBtn && hideBtn) {
+            commentDiv.style.display = "none";
+            showBtn.style.display = "inline";
+            hideBtn.style.display = "none";
+        }
+    }
+
+    function like(id) {
+        fetch(`/api/posts/${id}/like`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({})
+        })
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (responseDto) {
+
+                window.location.href = "/"
+
+            })
+            .catch(function (error) {
+                alert("좋아요 실패");
+            });
+    }
+
+    function report(id) {
+
+        var result=confirm("글을 신고하시겠습니까?");
+        if (result==true){
+            fetch(`/api/posts/report/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({})
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (responseDto) {
+                    alert("관리자가 검토할 예정입니다.");
+                    window.location.href = "/"
+
+                })
+                .catch(function (error) {
+                    alert("신고 실패");
+                });
+        }else if(result==false) {
+            alert("취소했습니다")
+        }
+
+    }
+
 
 </script>
 </body>

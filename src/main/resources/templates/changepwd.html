@@ -2,21 +2,50 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>CHECK SHIRTS - 비밀번호 변경</title>
+    <title>Airygram::비밀번호 변경 페이지</title>
 </head>
 <style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #ffffff;
+        flex-direction: column; /* Align elements in a column */
+    }
+
+    .userInfo {
+        display: grid;
+        grid-template-columns: 200px 200px; /* Adjust the column width as needed */
+        grid-gap: 10px; /* Add some gap between columns */
+        align-items: center; /* Center elements horizontally */
+        margin-top: 20px; /* Add some top margin for spacing */
+    }
+
+    /* Rest of the CSS styles remain unchanged */
     .error-message {
         color: red;
         font-size: 14px;
         margin-top: 5px;
-        text-align: left;
+        text-align: center;
     }
 
     .success-message {
         color: green;
         font-size: 14px;
         margin-top: 5px;
-        text-align: left;
+        text-align: center;
+    }
+
+    /* Adjust the input field width */
+    .inputTxt {
+        width: 100%;
+    }
+
+    /* Adjust the label width */
+    dt {
+        width: 150px;
+        text-align: center;
     }
 </style>
 <script>
@@ -119,6 +148,7 @@
                 .then(function (responseDto) {
                     alert(responseDto.msg)
                     console.log(responseDto)
+                    window.close()
                 })
                 .catch(function (error) {
                     console.error("비밀번호 변경요청 실패", error);
@@ -128,21 +158,23 @@
 
 </script>
 <body>
+<img src="/images/logo.png">
 <h1>비밀번호 변경</h1>
 <dl class="userInfo">
-    <dt class="currentPw"><label>현재 비밀번호</label></dt>
+
+    <dt class="currentPw"><label for="currentPassword">현재 비밀번호</label></dt>
     <dd class="currentPw"><input type="password" id="currentPassword" class="inputTxt">
     </dd>
 
-    <dt class="pw"><label>새 비밀번호</label></dt>
+    <dt class="pw"><label for="newPassword">새 비밀번호</label></dt>
     <dd class="pw">
-        <input type="password" id="newPassword" onchange="newPassword1Confirm()"></input>
+        <input type="password" id="newPassword" class="inputTxt" onchange="newPassword1Confirm()">
         <span name="message">영문/숫자/특수문자를 조합하여 8~16자로 입력해주세요.</span>
         <div id="password-error" class="error-message" style="display: none;"></div>
         <div id="password-success" class="success-message" style="display: none;"></div> <!--동적으로 전달할 성공메시지-->
     </dd>
 
-    <dt class="pw2"><label>새 비밀번호 확인</label></dt>
+    <dt class="pw2"><label for="newPassword2">새 비밀번호 확인</label></dt>
     <dd class="pw2">
         <input type="password" id="newPassword2" class="inputTxt" onchange="newPassword2Confirm()">
         <span name="message2">비밀번호를 다시 한번 입력해주세요.</span>

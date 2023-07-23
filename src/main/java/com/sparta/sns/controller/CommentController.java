@@ -28,6 +28,16 @@ public class CommentController {
         commentservice.createComment(requestDto, userDetails.getUser());
         return "redirect:/";
     }
+  @PostMapping("/comment")
+    public String createComment2(@AuthenticationPrincipal UserDetailsImpl userDetails, @ModelAttribute CommentRequestDto requestDto) {
+        commentservice.createComment(requestDto, userDetails.getUser());
+        return "redirect:/api/mypage";
+    }
+    @PostMapping("/commentss")
+    public String createComment3(@AuthenticationPrincipal UserDetailsImpl userDetails, @ModelAttribute CommentRequestDto requestDto) {
+        commentservice.createComment(requestDto, userDetails.getUser());
+        return "redirect:/api/userprofile/"+requestDto.getUsername();
+    }
 
     // 댓글 삭제
     @DeleteMapping("/comments/{commentId}")

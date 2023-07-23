@@ -188,5 +188,18 @@ public class UserService {
         return userRepository.findAll();
     }
 
-
+    //사용자 차단하기
+    @Transactional
+    public void denyUser(Long id) {
+        User user= userRepository.findById(id).orElseThrow(()->
+                    new IllegalArgumentException("회원이 존재 하지 않습니다."));
+        user.deny();
+    }
+    //사용자 차단 헤제 하기
+    @Transactional
+    public void denyCancelUser(Long id) {
+        User user= userRepository.findById(id).orElseThrow(()->
+                    new IllegalArgumentException("회원이 존재 하지 않습니다."));
+        user.denyCancel();
+    }
 }

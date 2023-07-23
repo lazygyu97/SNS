@@ -1,5 +1,6 @@
 package com.sparta.sns.service;
 
+import com.sparta.sns.config.FileComponent;
 import com.sparta.sns.dto.ApiResponseDto;
 import com.sparta.sns.dto.ModifyPasswordRequestDto;
 import com.sparta.sns.dto.ProfileRequestDto;
@@ -13,7 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +28,7 @@ public class ProfileService {
     private final UserRepository userRepository;
     private final PasswordManagerRepository passwordManagerRepository;
     private final PasswordEncoder passwordEncoder;
+    private final FileComponent fileComponent;
 
     public ProfileResponseDto userProfile(String username) {
         User loginedUser = findUser(username);
@@ -46,12 +50,7 @@ public class ProfileService {
         return new ApiResponseDto("프로필 수정을 완료했습니다.");
     }
 
-    //user가 db내 존재하는지 검사
-    private User findUser(String username) {
-        return userRepository.findByUsername(username).orElseThrow(() ->
-                new IllegalArgumentException("존재하지 않는 사용자 입니다.")
-        );
-    }
+
 
 
     @Transactional
@@ -85,5 +84,27 @@ public class ProfileService {
         else
             throw new IllegalArgumentException("입력한 현재 비밀번호가 일치하지 않습니다.");
 
+    }
+
+    @Transactional
+    public String updateImage(MultipartFile image,User user) {
+        User loginedUser = findUser(user.getUsername());
+        // file 비어있지 않으면 imageUrl set
+        try {
+            if(!image.isEmpty()) {
+                String storedFileName = fileComponent.upload(image);
+                loginedUser.setImage(storedFileName);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return "수정성공";
+    }
+
+    //user가 db내 존재하는지 검사
+    private User findUser(String username) {
+        return userRepository.findByUsername(username).orElseThrow(() ->
+                new IllegalArgumentException("존재하지 않는 사용자 입니다.")
+        );
     }
 }

@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="/css/style.css">
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"
             integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/3.0.1/js.cookie.min.js"></script>
     <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
 
     <style>
@@ -104,7 +104,7 @@
     <input type="text" name="username" id="username" class="login-input-box" placeholder="아이디">
     <input type="password" name="password" id="password" class="login-input-box" placeholder="비밀번호">
     <button id="login-id-submit" onclick="onLogin()">로그인</button>
-    <button id="login-kakao-btn" onclick="location.href='https://kauth.kakao.com/oauth/authorize?client_id=23f76b5e252a4dc5a391f28821481159&redirect_uri=http://localhost:9090/api/user/kakao/callback&response_type=code'">
+    <button style="background-color: #eed76c;color: #333333" id="login-kakao-btn" onclick="location.href='https://kauth.kakao.com/oauth/authorize?client_id=23f76b5e252a4dc5a391f28821481159&redirect_uri=http://localhost:9090/api/user/kakao/callback&response_type=code'">
         카카오로 로그인하기
     </button>
     <button id="login-id-btn" onclick="location.href='/api/user/signup'">

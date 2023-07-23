@@ -4,7 +4,6 @@ import com.sparta.sns.dto.*;
 import com.sparta.sns.security.UserDetailsImpl;
 import com.sparta.sns.service.PostService;
 import com.sparta.sns.service.ProfileService;
-import com.sparta.sns.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -26,7 +26,6 @@ import java.util.List;
 @RequestMapping("/api")
 public class ProfileController {
 
-    private final UserService userService;
     private final ProfileService profileService;
     private final PostService postService;
 
@@ -42,9 +41,19 @@ public class ProfileController {
         String nickname=userDetails.getNickname();
         String email=userDetails.getUser().getEmail();
         String oneLine=userDetails.getUser().getOneLine();
-        List<PostResponseDto> postList= postService.getPostByUsername(userDetails.getUser().getId());
+        String image=userDetails.getUser().getImage();
+        System.out.println(image);
+
+        if(!postService.getPostById(userDetails.getUser().getId()).isEmpty()){
+            List<PostResponseDto> postList= postService.getPostById(userDetails.getUser().getId());
+            model.addAttribute("postList",postList);
+
+        }
+        if(image==null){
+            image="/images/user.png";
+        }
         model.addAttribute("username",username);
-        model.addAttribute("postList",postList);
+        model.addAttribute("image",image);
         model.addAttribute("nickname",nickname);
         model.addAttribute("email",email);
         model.addAttribute("oneLine",oneLine);
@@ -57,18 +66,16 @@ public class ProfileController {
 
         //본인 페이지로 이동시도할 시, myProfile로 이동
         if(username.equals(userDetails.getUsername())){
-            String nickname=userDetails.getNickname();
-            String email=userDetails.getUser().getEmail();
-            String oneLine=userDetails.getUser().getOneLine();
-            List<PostResponseDto> postList= postService.getPostByUsername(userDetails.getUser().getId());
-
-            model.addAttribute("postList",postList);
-            model.addAttribute("nickname",nickname);
-            model.addAttribute("email",email);
-            model.addAttribute("oneLine",oneLine);
-            return "mypage";
+            return "redirect:/api/mypage";
         }
+
+        if(profileResponseDto.getImage()==null){
+            profileResponseDto.setImage("/images/user.png");
+        }
+
+        List<PostResponseDto> postList= postService.getPostByUsername(username);
         model.addAttribute("profile",profileResponseDto);
+        model.addAttribute("postList",postList);
         return "userpage";
     }
 
@@ -87,6 +94,12 @@ public class ProfileController {
         }
 
         return ResponseEntity.ok().body(profileService.modifyProfile(userDetails.getUser(), requestDto));
+    }
+
+    @PutMapping("/myprofile/image")
+    public ResponseEntity<ApiResponseDto> updateImage(@RequestPart(value = "file") MultipartFile image, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        profileService.updateImage(image,userDetails.getUser());
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponseDto("프로필 수정 성공"));
     }
 
     @GetMapping("/myprofile/password")
