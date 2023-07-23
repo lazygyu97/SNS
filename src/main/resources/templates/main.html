@@ -63,6 +63,7 @@
             width: 100%;
             display: flex;
             flex-direction: row;
+
         }
         .select button{
             margin-left: auto;
@@ -72,6 +73,7 @@
             background-color: rgba(78, 129, 201, 0.15);
             font-size: 20px;
             color: #4e81c9;
+            border-radius: 20px;
         }
         /* 글 리스트 스타일 */
         .post-list1 {
@@ -151,7 +153,6 @@
             text-align: left;
             margin-left: 50px;
             margin-top: 10px;
-            overflow: scroll;
         }
 
         /* 댓글 버튼 및 댓글 폼 스타일 */
@@ -196,13 +197,13 @@
             text-align: right;
             margin-top: 10px;
             margin-bottom: 20px;
-            overflow-y: hidden; /* Hide the vertical scrollbar */
+            /*overflow-y: hidden; !* Hide the vertical scrollbar *!*/
 
         }
 
         .comment-list div {
             /* Optional: If you want to hide the horizontal scrollbar as well */
-            overflow-x: hidden;
+            /*overflow-x: hidden;*/
         }
 
         .post-image img:not([src]) {
@@ -271,7 +272,7 @@
                             </div>
 
                             <div th:id="'comment-' + ${postList.id}" style="height:100px;display: none;overflow: scroll;">
-                                <li style="list-style: none; height: 20px; overflow: scroll "
+                                <li style="list-style: none; height: 20px;"
                                     th:each="comment : ${postList.comments}">
                                     <span style="font-size: 15px" class="comment-body" th:text="${comment.content}"></span>
                                     <span style="font-size: 12px" class="comment-body" th:text="${comment.username}"></span>
@@ -288,7 +289,7 @@
             </div>
 
             <div class="comment-form">
-                <div style="margin-left: 200px;">
+                <div style="margin-left: 100px;">
                     <form th:action="@{/api/comments}" method="post">
                         <input type="hidden" name="postId" th:value="${postList.getId()}">
                         <input class="comment-input" type="text" name="content" placeholder="댓글을 입력하세요"
@@ -339,7 +340,7 @@
                             </div>
 
                             <div th:id="'comment2-' + ${postList.id}" style="height:100px;display: none;overflow: scroll;">
-                                <li style="list-style: none; height: 20px; overflow: scroll "
+                                <li style="list-style: none; height: 20px;"
                                     th:each="comment : ${postList.comments}">
                                     <span style="font-size: 15px" class="comment-body" th:text="${comment.content}"></span>
                                     <span style="font-size: 12px" class="comment-body" th:text="${comment.username}"></span>
@@ -356,7 +357,7 @@
             </div>
 
             <div class="comment-form">
-                <div style="margin-left: 200px;">
+                <div style="margin-left: 100px;">
                     <form th:action="@{/api/comments}" method="post">
                         <input type="hidden" name="postId" th:value="${postList.getId()}">
                         <input class="comment-input" type="text" name="content" placeholder="댓글을 입력하세요"

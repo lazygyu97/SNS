@@ -166,7 +166,7 @@
             text-align: left;
             margin-left: 50px;
             margin-top: 10px;
-            overflow: scroll;
+            /*overflow: scroll;*/
 
         }
 
@@ -215,7 +215,7 @@
 
         .comment-list div {
             /* Optional: If you want to hide the horizontal scrollbar as well */
-            overflow-x: hidden;
+            /*overflow-x: hidden;*/
         }
 
         .post-image img:not([src]) {
@@ -358,6 +358,7 @@
                     responseDto.forEach(function (follower) {
                         let nickname = follower.nickname;
                         let image = follower.image;
+                        let username = follower.username;
                         if (!image) {
                             image = "/images/user.png"
                         }
@@ -566,7 +567,7 @@
 
             <div class="section" th:id="'section-' + ${postList.id}">
                 <div class="post-content">
-                    <a th:href="'api/userprofile/'+${postList.getUsername()}" style="font-size: 20px;text-decoration: none"><span
+                    <a style="font-size: 20px;text-decoration: none"><span
                             th:text="${postList.getUsername()}" style="margin-bottom: 5px;"></span></a>
                     <div th:id="'modifyContent-' + ${postList.getId()}" contenteditable="false" style="font-size: 15px;margin-top: 10px" th:text="${postList.getContent()}"></div>
                 </div>
@@ -585,7 +586,7 @@
 
                             <div th:id="'comment-' + ${postList.id}"
                                  style="height:100px;display: none;overflow: scroll;">
-                                <li style="list-style: none; height: 20px; overflow: scroll "
+                                <li style="list-style: none; height: 20px;  "
                                     th:each="comment : ${postList.comments}">
                                     <span style="font-size: 15px" class="comment-body"
                                           th:text="${comment.content}"></span>

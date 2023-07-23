@@ -159,7 +159,7 @@
             text-align: left;
             margin-left: 50px;
             margin-top: 10px;
-            overflow: scroll;
+            /*overflow: scroll;*/
         }
 
         /* 댓글 버튼 및 댓글 폼 스타일 */
@@ -286,6 +286,8 @@
                     responseDto.forEach(function (follower) {
                         let nickname = follower.nickname;
                         let image = follower.image;
+                        let username = follower.username;
+
                         if (!image){
                             image="/images/user.png"
                         }
@@ -383,7 +385,7 @@
 
                             <div th:id="'comment-' + ${postList.id}"
                                  style="height:100px;display: none;overflow: scroll;">
-                                <li style="list-style: none; height: 20px; overflow: scroll "
+                                <li style="list-style: none; height: 20px; "
                                     th:each="comment : ${postList.comments}">
                                     <span style="font-size: 15px" class="comment-body"
                                           th:text="${comment.content}"></span>

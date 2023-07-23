@@ -68,7 +68,7 @@ public class KakaoService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("client_id", "23f76b5e252a4dc5a391f28821481159");
-        body.add("redirect_uri", "http://localhost:9090/api/user/kakao/callback");
+        body.add("redirect_uri", "http://15.164.184.49/api/user/kakao/callback");
         body.add("code", code);
 
         RequestEntity<MultiValueMap<String, String>> requestEntity = RequestEntity
