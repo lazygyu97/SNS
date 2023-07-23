@@ -1,13 +1,17 @@
 package com.sparta.sns.service;
 
+import com.sparta.sns.comparator.PostComparator;
 import com.sparta.sns.config.FileComponent;
 import com.sparta.sns.dto.ApiResponseDto;
 import com.sparta.sns.dto.PostRequestDto;
 import com.sparta.sns.dto.PostResponseDto;
+import com.sparta.sns.entity.Follow;
 import com.sparta.sns.entity.Post;
 import com.sparta.sns.entity.User;
 import com.sparta.sns.entity.UserRoleEnum;
+import com.sparta.sns.repository.FollowRepository;
 import com.sparta.sns.repository.PostRepository;
+import com.sparta.sns.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,13 +19,17 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class PostService {
 
     private PostRepository postRepository;
+    private UserRepository userRepository;
+    private FollowRepository followRepository;
 
     // 이미지 업로드
     private final FileComponent fileComponent;
@@ -128,4 +136,30 @@ public class PostService {
     }
 
 
+    public List<PostResponseDto> followingUsersPosts(User user) {
+        User loginedUser = findUser(user.getUsername());
+
+        //로그인한 유저의 팔로잉 정보 가져오기
+        List<Follow> followInfos = followRepository.findByUser(loginedUser);
+
+        //팔로잉 유저의 게시글을 담을 List 생성
+        List<Post> followingUsersPosts = new ArrayList<>();
+        //팔로잉 유저가 작성한 게시글들을 찾아 저장
+        for(Follow followInfo : followInfos){
+            List<Post> posts = postRepository.findByUser(followInfo.getFollowingUser());
+            followingUsersPosts.addAll(posts);
+        }
+        //생성 날짜 순으로 정렬
+        Collections.sort(followingUsersPosts,new PostComparator());
+
+        // 타입변경 stream.map 이용하여 변환 후 반환하기
+        return followingUsersPosts.stream().map(PostResponseDto::new).toList();
+
+    }
+
+    private User findUser(String username) {
+        return userRepository.findByUsername(username).orElseThrow(() ->
+                new IllegalArgumentException("존재하지 않는 사용자 입니다.")
+        );
+    }
 }

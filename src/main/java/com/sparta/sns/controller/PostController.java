@@ -45,6 +45,13 @@ public class PostController {
         return postService.getAllPosts();
     }
 
+    // 게시글 조회 (사용자가 팔로잉한 유저의 게시글만 조회)
+    @GetMapping("/posts/followingUsers")
+    @ResponseBody
+    public List<PostResponseDto> followingUsersPosts(@AuthenticationPrincipal UserDetailsImpl userDetails){
+        return postService.followingUsersPosts(userDetails.getUser());
+    }
+
     // 게시글 조회 (팔로잉 목록) > 팔로잉 구현 이후 구현!/ 게시글 수정
     @PutMapping("/posts/{postid}")
     public String updatePost(@PathVariable Long id, @RequestBody PostRequestDto requestDto,  @AuthenticationPrincipal UserDetailsImpl userDetails){
