@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor//null pointer exception 주의 !!!
 @Table(name = "comments")
 public class Comment extends TimeStamped{
     @Id

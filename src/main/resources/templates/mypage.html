@@ -689,7 +689,7 @@
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         console.error('POST 요청 실패:', errorThrown);
-                        alert("실패")
+                        window.location.reload();
                         // 여기에서 POST 요청 실패 처리
                     }
                 });
@@ -713,7 +713,7 @@
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         console.error('POST 요청 실패:', errorThrown);
-                        alert("실패")
+                        window.location.reload();
                         // 여기에서 POST 요청 실패 처리
                     }
                 });
@@ -761,6 +761,7 @@
             error: function (jqXHR, textStatus, errorThrown) {
                 // 여기에서 POST 요청 실패 처리
                 alert("수정실패!")
+                window.location.reload();
 
             }
         });
